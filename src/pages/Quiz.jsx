@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import QuizResultado from "../components/QuizResultado";
 import mockQuestoes from "../data/mockQuestoes";
 
 export default function Quiz() {
+  const { tema: temaParam } = useParams();
   const { state } = useLocation();
-  const tema = state?.tema ?? "Geral";
+  const tema = decodeURIComponent(temaParam ?? "Geral");
   const modo = state?.modo ?? "com_feedback";
 
   // TODO: substituir mockQuestoes pela chamada real à API

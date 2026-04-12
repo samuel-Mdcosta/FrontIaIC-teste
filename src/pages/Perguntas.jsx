@@ -8,7 +8,7 @@ export default function Perguntas() {
 
   function iniciar() {
     if (!tema.trim()) return;
-    navigate("/quiz", { state: { tema, modo } });
+    navigate(`/perguntas/quizz/${encodeURIComponent(tema)}`, { state: { modo } });
   }
 
   return (
