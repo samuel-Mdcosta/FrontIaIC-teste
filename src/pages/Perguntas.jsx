@@ -1,15 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { usePerguntas } from "../hooks/usePerguntas";
 
 export default function Perguntas() {
-  const [tema, setTema] = useState("");
-  const [modo, setModo] = useState("com_feedback");
-  const navigate = useNavigate();
-
-  function iniciar() {
-    if (!tema.trim()) return;
-    navigate(`/perguntas/quizz/${encodeURIComponent(tema)}`, { state: { modo } });
-  }
+  const { tema, setTema, modo, setModo, iniciar } = usePerguntas();
 
   return (
     <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
