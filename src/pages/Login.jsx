@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Login() {
   return (
     <main className="flex-grow flex items-center justify-center p-6 md:p-12">
@@ -32,12 +34,12 @@ export default function Login() {
                     <label className="block font-label text-[10px] uppercase tracking-widest font-semibold text-outline">
                       Senha
                     </label>
-                    <a
+                    <Link
                       className="font-label text-[10px] uppercase tracking-widest font-semibold text-primary hover:underline"
-                      href="#"
+                      to="/login/redefinirSenha"
                     >
                       Esqueci minha senha
-                    </a>
+                    </Link>
                   </div>
                   <input
                     className="w-full bg-surface-container-highest border-none rounded-lg px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-primary/20 transition-all"

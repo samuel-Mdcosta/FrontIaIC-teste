@@ -6,6 +6,7 @@ import Chat from "./pages/Chat";
 import Perguntas from "./pages/Perguntas";
 import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
+import RedefSenha from "./pages/RedefSenha";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="perguntas" element={<Perguntas />} />
           <Route path="perguntas/quizz/:tema" element={<Quiz />} />
           <Route path="perfil" element={<Perfil />} />
+          <Route path="login/redefinirSenha" element={<RedefSenha />} />
         </Route>
       </Routes>
     </BrowserRouter>
