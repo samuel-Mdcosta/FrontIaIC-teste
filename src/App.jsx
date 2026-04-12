@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import Chat from "./pages/Chat";
 import Perguntas from "./pages/Perguntas";
+import Quiz from "./pages/Quiz";
 
 export default function App() {
   return (
@@ -13,7 +14,8 @@ export default function App() {
           <Route index element={<Login />} />
           <Route path="inicio" element={<Inicio />} />
           <Route path="chat" element={<Chat />} />
-          <Route path="quizz" element={<Perguntas />} />
+          <Route path="perguntas" element={<Perguntas />} />
+          <Route path="quiz" element={<Quiz />} />
         </Route>
       </Routes>
     </BrowserRouter>

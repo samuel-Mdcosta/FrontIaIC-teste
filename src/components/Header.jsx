@@ -20,7 +20,7 @@ export default function Header() {
           </a>
           <a
             className="text-slate-500 font-medium hover:text-blue-800 transition-colors"
-            href="/quizz"
+            href="/perguntas"
           >
             Perguntas
           </a>
