@@ -1,4 +1,7 @@
+import { useChat } from "../hooks/useChat";
+
 export default function Chat() {
+  const { mensagem, setMensagem, enviar, handleKeyDown, carregando, erro } = useChat();
   return (
     <main className="flex-1 flex flex-col relative overflow-hidden bg-surface">
       {/* Chat Area */}
@@ -66,13 +69,28 @@ export default function Chat() {
               className="w-full bg-transparent border-none focus:ring-0 py-3 text-on-surface placeholder:text-slate-400 resize-none max-h-48 min-h-[56px] font-medium leading-relaxed"
               placeholder="Faça uma pergunta sobre neurociência..."
               rows="1"
+              value={mensagem}
+              onChange={(e) => setMensagem(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={carregando}
             />
             <div className="flex items-center gap-1">
-              <button className="bg-gradient-to-br from-primary to-primary-container text-white h-12 w-12 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:shadow-lg shadow-primary/20">
-                <span className="material-symbols-outlined">send</span>
+              <button
+                onClick={enviar}
+                disabled={!mensagem.trim() || carregando}
+                className="bg-gradient-to-br from-primary to-primary-container text-white h-12 w-12 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:shadow-lg shadow-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined">
+                  {carregando ? "progress_activity" : "send"}
+                </span>
               </button>
             </div>
           </div>
+          {erro && (
+            <p className="text-center text-[10px] text-error mt-2 font-medium">
+              Erro ao enviar: {erro}
+            </p>
+          )}
           <p className="text-center text-[10px] text-slate-400 mt-4 font-medium tracking-wide">
             O Synapse Academic pode cometer erros em diagnósticos complexos.
             Verifique as fontes em sua biblioteca.
