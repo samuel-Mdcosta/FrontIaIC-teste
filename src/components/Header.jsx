@@ -2,11 +2,34 @@ export default function Header() {
   return (
     <header className="fixed top-0 w-full z-50 bg-slate-50/70 backdrop-blur-xl flex justify-between items-center px-8 h-20 mx-auto">
       <div className="flex items-center gap-8">
-        <span className="text-2xl font-bold tracking-tighter text-blue-900 font-headline">Synapse Academic</span>
+        <span className="text-2xl font-bold tracking-tighter text-blue-900 font-headline">
+          Synapse Academic
+        </span>
         <nav className="hidden md:flex items-center gap-6">
-          <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="#">Dashboard</a>
-          <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="#">Historico</a>
-          <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="#">Perfil</a>
+          <a
+            className="text-slate-500 font-medium hover:text-blue-800 transition-colors"
+            href="/inicio"
+          >
+            Home
+          </a>
+          <a
+            className="text-slate-500 font-medium hover:text-blue-800 transition-colors"
+            href="/chat"
+          >
+            Chat
+          </a>
+          <a
+            className="text-slate-500 font-medium hover:text-blue-800 transition-colors"
+            href="/quizz"
+          >
+            Perguntas
+          </a>
+          <a
+            className="text-slate-500 font-medium hover:text-blue-800 transition-colors"
+            href="#"
+          >
+            Perfil
+          </a>
         </nav>
       </div>
       <div className="flex items-center gap-4">
@@ -18,7 +41,9 @@ export default function Header() {
           />
         </div>
         <button className="p-2 hover:bg-slate-200/50 rounded-lg transition-all">
-          <span className="material-symbols-outlined text-blue-900">dark_mode</span>
+          <span className="material-symbols-outlined text-blue-900">
+            dark_mode
+          </span>
         </button>
       </div>
     </header>
