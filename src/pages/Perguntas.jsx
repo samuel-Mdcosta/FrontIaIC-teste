@@ -31,12 +31,15 @@ export default function Perguntas() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-7 space-y-12">
-
           {/* 01 — Tema */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <span className="text-primary font-headline text-2xl font-semibold">01</span>
-              <h2 className="font-headline text-2xl font-medium text-on-surface">Qual será o tema do seu estudo?</h2>
+              <span className="text-primary font-headline text-2xl font-semibold">
+                01
+              </span>
+              <h2 className="font-headline text-2xl font-medium text-on-surface">
+                Qual será o tema do seu estudo?
+              </h2>
             </div>
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/5 rounded-[2rem] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
@@ -63,44 +66,77 @@ export default function Perguntas() {
           {/* 02 — Modalidade */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <span className="text-primary font-headline text-2xl font-semibold">02</span>
-              <h2 className="font-headline text-2xl font-medium text-on-surface">Modalidade de Feedback</h2>
+              <span className="text-primary font-headline text-2xl font-semibold">
+                02
+              </span>
+              <h2 className="font-headline text-2xl font-medium text-on-surface">
+                Modalidade de Feedback
+              </h2>
             </div>
             <div className="space-y-4">
               <label className="flex group cursor-pointer">
-                <input checked={modo === "com_feedback"} onChange={() => setModo("com_feedback")} className="peer sr-only" name="mode" type="radio" value="com_feedback" />
+                <input
+                  checked={modo === "com_feedback"}
+                  onChange={() => setModo("com_feedback")}
+                  className="peer sr-only"
+                  name="mode"
+                  type="radio"
+                  value="com_feedback"
+                />
                 <div className="w-full flex items-center p-6 bg-surface-container-lowest rounded-xl border-l-4 border-transparent peer-checked:border-primary peer-checked:bg-primary/[0.02] shadow-sm transition-all group-hover:bg-surface-container-low">
                   <div className="p-3 bg-secondary/10 rounded-lg mr-6">
-                    <span className="material-symbols-outlined text-secondary">lightbulb</span>
+                    <span className="material-symbols-outlined text-secondary">
+                      lightbulb
+                    </span>
                   </div>
                   <div className="flex-grow">
-                    <h3 className="font-headline font-bold text-on-surface">Com Feedback</h3>
-                    <p className="text-sm text-on-surface-variant">Explicação científica exibida após cada resposta.</p>
+                    <h3 className="font-headline font-bold text-on-surface">
+                      Com Feedback
+                    </h3>
+                    <p className="text-sm text-on-surface-variant">
+                      Explicação científica exibida após cada resposta.
+                    </p>
                   </div>
                   <div className="peer-checked:flex hidden ml-4">
-                    <span className="material-symbols-outlined text-primary">radio_button_checked</span>
+                    <span className="material-symbols-outlined text-primary">
+                      radio_button_checked
+                    </span>
                   </div>
                 </div>
               </label>
 
               <label className="flex group cursor-pointer">
-                <input checked={modo === "sem_feedback"} onChange={() => setModo("sem_feedback")} className="peer sr-only" name="mode" type="radio" value="sem_feedback" />
+                <input
+                  checked={modo === "sem_feedback"}
+                  onChange={() => setModo("sem_feedback")}
+                  className="peer sr-only"
+                  name="mode"
+                  type="radio"
+                  value="sem_feedback"
+                />
                 <div className="w-full flex items-center p-6 bg-surface-container-lowest rounded-xl border-l-4 border-transparent peer-checked:border-primary peer-checked:bg-primary/[0.02] shadow-sm transition-all group-hover:bg-surface-container-low">
                   <div className="p-3 bg-tertiary/10 rounded-lg mr-6">
-                    <span className="material-symbols-outlined text-tertiary">timer</span>
+                    <span className="material-symbols-outlined text-tertiary">
+                      timer
+                    </span>
                   </div>
                   <div className="flex-grow">
-                    <h3 className="font-headline font-bold text-on-surface">Sem Feedback</h3>
-                    <p className="text-sm text-on-surface-variant">Simulação de exame. Revisão completa apenas no final.</p>
+                    <h3 className="font-headline font-bold text-on-surface">
+                      Sem Feedback
+                    </h3>
+                    <p className="text-sm text-on-surface-variant">
+                      Simulação de exame. Revisão completa apenas no final.
+                    </p>
                   </div>
                   <div className="peer-checked:flex hidden ml-4">
-                    <span className="material-symbols-outlined text-primary">radio_button_checked</span>
+                    <span className="material-symbols-outlined text-primary">
+                      radio_button_checked
+                    </span>
                   </div>
                 </div>
               </label>
             </div>
           </div>
-
         </div>
 
         {/* Resumo */}
@@ -113,16 +149,30 @@ export default function Perguntas() {
                 </h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
-                    <span className="text-sm text-on-surface-variant">Tema</span>
-                    <span className="font-semibold text-primary truncate max-w-[160px] text-right">{tema || "—"}</span>
+                    <span className="text-sm text-on-surface-variant">
+                      Tema
+                    </span>
+                    <span className="font-semibold text-primary truncate max-w-[160px] text-right">
+                      {tema || "—"}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
-                    <span className="text-sm text-on-surface-variant">Modalidade</span>
-                    <span className="font-semibold text-primary">{modo === "com_feedback" ? "Com Feedback" : "Sem Feedback"}</span>
+                    <span className="text-sm text-on-surface-variant">
+                      Modalidade
+                    </span>
+                    <span className="font-semibold text-primary">
+                      {modo === "com_feedback"
+                        ? "Com Feedback"
+                        : "Sem Feedback"}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-3">
-                    <span className="text-sm text-on-surface-variant">Geração</span>
-                    <span className="font-semibold text-primary">IA — RAG</span>
+                    <span className="text-sm text-on-surface-variant">
+                      Quantidade
+                    </span>
+                    <span className="font-semibold text-primary">
+                      10 Questões
+                    </span>
                   </div>
                 </div>
               </div>
@@ -138,14 +188,20 @@ export default function Perguntas() {
 
               <p className="text-[10px] text-center text-on-surface-variant uppercase tracking-widest">
                 As questões são geradas com base na{" "}
-                <span className="text-primary font-bold">literatura acadêmica</span>.
+                <span className="text-primary font-bold">
+                  literatura acadêmica
+                </span>
+                .
               </p>
             </div>
 
             <div className="p-6 bg-surface-container-highest/50 rounded-2xl flex gap-4 items-start">
-              <span className="material-symbols-outlined text-secondary">info</span>
+              <span className="material-symbols-outlined text-secondary">
+                info
+              </span>
               <p className="text-xs leading-relaxed text-on-surface-variant">
-                O motor RAG recupera trechos dos PDFs acadêmicos para fundamentar cada questão gerada.
+                O motor RAG recupera trechos dos PDFs acadêmicos para
+                fundamentar cada questão gerada.
               </p>
             </div>
           </div>
