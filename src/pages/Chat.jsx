@@ -1,7 +1,15 @@
+import { useEffect, useRef } from "react";
 import { useChat } from "../hooks/useChat";
 
 export default function Chat() {
-  const { mensagem, setMensagem, enviar, handleKeyDown, carregando, erro } = useChat();
+  const { mensagem, setMensagem, mensagens, enviar, handleKeyDown, carregando, erro } = useChat();
+  const fimDaLista = useRef(null);
+
+  // Scroll automático para a última mensagem
+  useEffect(() => {
+    fimDaLista.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensagens]);
+
   return (
     <main className="flex-1 flex flex-col relative overflow-hidden bg-surface">
       {/* Chat Area */}
@@ -19,44 +27,44 @@ export default function Chat() {
 
         {/* Chat Messages */}
         <div className="flex flex-col space-y-10">
-          {/* AI Message */}
-          <div className="flex gap-6 max-w-3xl">
-            <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-secondary">
-                psychology
-              </span>
-            </div>
-            <div className="space-y-4">
-              <div className="prose prose-slate max-w-none text-on-surface leading-relaxed">
-                <p className="font-medium mb-2">Synapse Core AI</p>
-                <p>
-                  Eu analisei os dados da última sessão sobre o sistema límbico.
-                  O estudante de neuromedicina pode se beneficiar ao explorar a
-                  intersecção entre a amígdala e as respostas de medo
-                  condicionado.
-                </p>
-                <p>
-                  Deseja que eu prepare uma revisão detalhada sobre a
-                  potenciação de longa duração (LTP) ou prefere focar em
-                  anatomia clínica?
-                </p>
+          {mensagens.map((msg, i) =>
+            msg.tipo === "ia" ? (
+              <div key={i} className="flex gap-6 max-w-3xl">
+                <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-secondary">psychology</span>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium text-sm text-on-surface-variant">Synapse Core AI</p>
+                  <div className="prose prose-slate max-w-none text-on-surface leading-relaxed">
+                    <p>{msg.texto}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div key={i} className="flex gap-6 max-w-3xl ml-auto flex-row-reverse">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-primary">person</span>
+                </div>
+                <div className="bg-surface-container-low p-4 rounded-2xl rounded-tr-none">
+                  <p className="text-on-surface text-sm">{msg.texto}</p>
+                </div>
+              </div>
+            )
+          )}
+
+          {carregando && (
+            <div className="flex gap-6 max-w-3xl">
+              <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-secondary">psychology</span>
+              </div>
+              <div className="flex items-center gap-2 text-on-surface-variant text-sm">
+                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                Analisando literatura...
               </div>
             </div>
-          </div>
+          )}
 
-          {/* User Message */}
-          <div className="flex gap-6 max-w-3xl ml-auto flex-row-reverse">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-primary">
-                person
-              </span>
-            </div>
-            <div className="bg-surface-container-low p-4 rounded-2xl rounded-tr-none">
-              <p className="text-on-surface-variant text-sm italic">
-                Digitando análise técnica...
-              </p>
-            </div>
-          </div>
+          <div ref={fimDaLista} />
         </div>
       </section>
 

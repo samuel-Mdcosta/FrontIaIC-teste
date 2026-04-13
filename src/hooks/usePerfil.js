@@ -1,49 +1,75 @@
 import { useState, useEffect } from "react";
+import { BASE_URL, getAuthHeaders, clearToken } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-// Estrutura esperada da API:
-// GET /usuario/perfil
-// {
-//   "nome": "Dr. Alan Turing",
-//   "email": "pesquisador@synapse.edu",
-//   "instituicao": "Universidade Uniderp",
-//   "foto": "https://...",
-//   "stats": {
-//     "sessoesRealizadas": 12,
-//     "questoesRespondidas": 84,
-//     "taxaAcerto": 76
-//   }
-// }
+// GET /api/user
+// Response: { id, nome, email, ... }
 
-const mockPerfil = {
-  nome: "Dr. Alan Turing",
-  email: "pesquisador@synapse.edu",
-  instituicao: "Universidade Uniderp",
-  foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAc-_4Z8aSTUnQGz7of7XZbNYiZE98YtkHNQN36OFywzawA-cHW-H05-e2sNNzXNxv_eA1oc1sHDQVDenADduMGCMuryvPjqWdnBYQYPTLZiNIy-J0metAU0YFjrHNRkds82lCehGldOzlHkMLWDrZwp8xTdHfLzWYfRdcrpQpHQbgfuoyuOQ1hVqBbP3r8zKu9IaB7LdlO08ZAW2-67B2Hg65im7I87PAT8YWZ33wB0AKjk9ysS2r2Zsb3F6CSu8Z4rrtREwD1UtIg",
-  stats: {
-    sessoesRealizadas: 12,
-    questoesRespondidas: 84,
-    taxaAcerto: 76,
-  },
-};
+// GET /api/users/login/chat/quantidade
+// Response: { quantidade: number }
+
+// GET /api/users/login/tentativas/quantidade
+// Response: { quantidade: number }
+
+// POST /api/users/logout
+// Response: { message: "..." }
 
 export function usePerfil() {
   const [perfil, setPerfil] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // TODO: substituir pelo fetch real
-    // fetch("/usuario/perfil")
-    //   .then((r) => r.json())
-    //   .then((data) => setPerfil(data))
-    //   .catch((e) => setErro(e.message))
-    //   .finally(() => setCarregando(false));
+    async function buscarPerfil() {
+      try {
+        const headers = getAuthHeaders();
 
-    setTimeout(() => {
-      setPerfil(mockPerfil);
-      setCarregando(false);
-    }, 500);
+        const [resUsuario, resSessoesChat, resTentativas] = await Promise.all([
+          fetch(`${BASE_URL}/api/user`, { headers }),
+          fetch(`${BASE_URL}/api/users/login/chat/quantidade`, { headers }),
+          fetch(`${BASE_URL}/api/users/login/tentativas/quantidade`, { headers }),
+        ]);
+
+        if (!resUsuario.ok) throw new Error(`Erro ao buscar usuário: ${resUsuario.status}`);
+
+        const usuario = await resUsuario.json();
+        const dadosChat = resSessoesChat.ok ? await resSessoesChat.json() : { quantidade: 0 };
+        const dadosTentativas = resTentativas.ok ? await resTentativas.json() : { quantidade: 0 };
+
+        setPerfil({
+          nome: usuario.nome,
+          email: usuario.email,
+          instituicao: usuario.instituicao ?? null,
+          foto: usuario.foto ?? null,
+          stats: {
+            sessoesRealizadas: dadosChat.quantidade ?? 0,
+            questoesRespondidas: dadosTentativas.quantidade ?? 0,
+            // taxaAcerto não disponível via API — requer endpoint dedicado no backend
+            taxaAcerto: null,
+          },
+        });
+      } catch (e) {
+        setErro(e.message);
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    buscarPerfil();
   }, []);
 
-  return { perfil, carregando, erro };
+  async function logout() {
+    try {
+      await fetch(`${BASE_URL}/api/users/logout`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+    } finally {
+      clearToken();
+      navigate("/");
+    }
+  }
+
+  return { perfil, carregando, erro, logout };
 }

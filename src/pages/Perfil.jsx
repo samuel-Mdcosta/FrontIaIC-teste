@@ -1,7 +1,7 @@
 import { usePerfil } from "../hooks/usePerfil";
 
 export default function Perfil() {
-  const { perfil, carregando, erro } = usePerfil();
+  const { perfil, carregando, erro, logout } = usePerfil();
 
   if (carregando) {
     return (
@@ -45,7 +45,9 @@ export default function Perfil() {
               </div>
               <div className="pb-1">
                 <h1 className="font-headline text-2xl font-bold text-on-surface">{perfil.nome}</h1>
-                <p className="text-sm text-on-surface-variant">{perfil.instituicao}</p>
+                {perfil.instituicao && (
+                  <p className="text-sm text-on-surface-variant">{perfil.instituicao}</p>
+                )}
               </div>
             </div>
 
@@ -57,13 +59,15 @@ export default function Perfil() {
                   <p className="text-sm font-medium text-on-surface">{perfil.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl">
-                <span className="material-symbols-outlined text-on-surface-variant">account_balance</span>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-label">Instituição</p>
-                  <p className="text-sm font-medium text-on-surface">{perfil.instituicao}</p>
+              {perfil.instituicao && (
+                <div className="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl">
+                  <span className="material-symbols-outlined text-on-surface-variant">account_balance</span>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-label">Instituição</p>
+                    <p className="text-sm font-medium text-on-surface">{perfil.instituicao}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -73,39 +77,16 @@ export default function Perfil() {
           <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4">
             Atividade Acadêmica
           </h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
               <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.sessoesRealizadas}</span>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Sessões</p>
+              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Sessões de Chat</p>
             </div>
             <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
               <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.questoesRespondidas}</span>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Questões</p>
-            </div>
-            <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
-              <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.taxaAcerto}%</span>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Acertos</p>
+              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Tentativas de Quiz</p>
             </div>
           </div>
-        </div>
-
-        {/* Barra de desempenho */}
-        <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-on-surface">Taxa de acerto geral</span>
-            <span className="text-sm font-bold text-primary">{perfil.stats.taxaAcerto}%</span>
-          </div>
-          <div className="h-2 bg-surface-container-high rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-700"
-              style={{ width: `${perfil.stats.taxaAcerto}%` }}
-            />
-          </div>
-          <p className="text-xs text-on-surface-variant">
-            {perfil.stats.taxaAcerto >= 70
-              ? "Desempenho acima da média. Continue assim."
-              : "Há espaço para melhora. Pratique mais sessões."}
-          </p>
         </div>
 
         {/* Ações */}
@@ -114,7 +95,10 @@ export default function Perfil() {
             <span className="material-symbols-outlined">edit</span>
             Editar Perfil
           </button>
-          <button className="flex-1 border-2 border-error text-error font-headline font-bold py-4 rounded-xl hover:bg-error hover:text-white transition-all flex items-center justify-center gap-2">
+          <button
+            onClick={logout}
+            className="flex-1 border-2 border-error text-error font-headline font-bold py-4 rounded-xl hover:bg-error hover:text-white transition-all flex items-center justify-center gap-2"
+          >
             <span className="material-symbols-outlined">logout</span>
             Sair
           </button>

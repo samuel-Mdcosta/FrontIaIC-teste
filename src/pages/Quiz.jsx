@@ -6,6 +6,8 @@ export default function Quiz() {
     tema,
     modo,
     questoes,
+    carregandoQuestoes,
+    erroQuestoes,
     questaoAtual,
     respostaSelecionada,
     setRespostaSelecionada,
@@ -17,6 +19,28 @@ export default function Quiz() {
     q,
     progresso,
   } = useQuiz();
+
+  if (carregandoQuestoes) {
+    return (
+      <main className="flex-1 flex items-center justify-center pt-24">
+        <div className="text-center space-y-4">
+          <span className="material-symbols-outlined text-primary text-4xl animate-spin">progress_activity</span>
+          <p className="text-sm text-on-surface-variant">Gerando questões sobre <span className="font-semibold text-primary">{tema}</span>...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (erroQuestoes) {
+    return (
+      <main className="flex-1 flex items-center justify-center pt-24">
+        <div className="text-center space-y-4">
+          <span className="material-symbols-outlined text-error text-4xl">error</span>
+          <p className="text-sm text-error">{erroQuestoes}</p>
+        </div>
+      </main>
+    );
+  }
 
   if (fim) {
     return <QuizResultado questoes={questoes} respostas={respostas} />;
