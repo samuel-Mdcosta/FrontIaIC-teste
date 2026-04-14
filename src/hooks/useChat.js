@@ -3,7 +3,7 @@ import { BASE_URL, getAuthHeaders } from "../services/api";
 
 // POST /api/users/login/chat/mensagem
 // Request:  { "pergunta": "string" }
-// Response: { "resposta": "string" }
+// Response: { "pergunta": "...", "resposta_tutor": { "resposta": "...", "disponivel_no_contexto": bool }, "documentos_utilizados": {...} }
 
 // POST /api/users/login/chat/salvarUso
 // Request:  { "tempoUsoChat": number }  (segundos)
@@ -54,7 +54,8 @@ export function useChat() {
       if (!response.ok) throw new Error(`Erro ${response.status}`);
 
       const data = await response.json();
-      setMensagens((prev) => [...prev, { tipo: "ia", texto: data.resposta }]);
+      const textoResposta = data.resposta_tutor?.resposta ?? "Sem resposta.";
+      setMensagens((prev) => [...prev, { tipo: "ia", texto: textoResposta }]);
     } catch (e) {
       setErro(e.message);
     } finally {
