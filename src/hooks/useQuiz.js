@@ -38,7 +38,7 @@ export function useQuiz() {
         if (!response.ok) throw new Error(`Erro ${response.status}`);
 
         const data = await response.json();
-        setQuestoes(data.questoes);
+        setQuestoes(data.quizz_gerado_llm?.questoes ?? []);
       } catch (e) {
         setErroQuestoes(e.message);
       } finally {
