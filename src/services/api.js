@@ -23,6 +23,7 @@ export function isAuthenticated() {
 export function getAuthHeaders() {
   return {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
     'Authorization': `Bearer ${getToken()}`,
   }
 }
@@ -30,6 +31,7 @@ export function getAuthHeaders() {
 export function getPublicHeaders() {
   return {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   }
 }
 
