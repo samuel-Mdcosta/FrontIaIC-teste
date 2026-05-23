@@ -1,20 +1,30 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { verificarEmailRedef } from "../services/api";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { redefinirSenha } from "../services/api";
 
-export default function RedefSenha() {
-  const [email, setEmail] = useState("");
+export default function NovaSenha() {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const email = state?.email ?? "";
+
+  const [senha, setSenha] = useState("");
+  const [senhaConfirm, setSenhaConfirm] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
-  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErro("");
+
+    if (senha !== senhaConfirm) {
+      setErro("As senhas não coincidem.");
+      return;
+    }
+
     setCarregando(true);
     try {
-      await verificarEmailRedef(email);
-      navigate("/login/novaSenha", { state: { email } });
+      await redefinirSenha(email, senha, senhaConfirm);
+      navigate("/", { replace: true });
     } catch (err) {
       setErro(err.message);
     } finally {
@@ -40,33 +50,56 @@ export default function RedefSenha() {
       <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0px_20px_40px_rgba(25,28,29,0.06)] ring-1 ring-outline-variant/15">
         <header className="mb-8">
           <h1 className="font-headline text-[1.75rem] font-medium leading-tight text-on-surface mb-3 text-center">
-            Recuperar Senha
+            Nova Senha
           </h1>
           <p className="text-on-surface-variant text-center leading-relaxed font-body">
-            Insira seu e-mail para receber as instruções de recuperação.
+            Digite e confirme sua nova senha.
           </p>
         </header>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label
               className="font-label text-xs font-medium uppercase tracking-[0.05em] text-on-surface-variant ml-1"
-              htmlFor="email"
+              htmlFor="password"
             >
-              E-mail
+              Nova Senha
             </label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant text-lg">
-                alternate_email
+                lock
               </span>
               <input
                 className="w-full h-14 pl-12 pr-4 bg-surface-container-highest text-on-surface rounded-lg border-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 placeholder:font-label placeholder:text-xs"
-                id="email"
-                name="email"
-                placeholder="[E-mail]"
+                id="password"
+                name="password"
+                placeholder="Nova senha"
                 required
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label
+              className="font-label text-xs font-medium uppercase tracking-[0.05em] text-on-surface-variant ml-1"
+              htmlFor="passwordConfirm"
+            >
+              Confirmar Senha
+            </label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant text-lg">
+                lock_reset
+              </span>
+              <input
+                className="w-full h-14 pl-12 pr-4 bg-surface-container-highest text-on-surface rounded-lg border-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 placeholder:font-label placeholder:text-xs"
+                id="passwordConfirm"
+                name="passwordConfirm"
+                placeholder="Confirmar nova senha"
+                required
+                type="password"
+                value={senhaConfirm}
+                onChange={(e) => setSenhaConfirm(e.target.value)}
               />
             </div>
           </div>
@@ -78,7 +111,7 @@ export default function RedefSenha() {
             type="submit"
             disabled={carregando}
           >
-            {carregando ? "Verificando..." : "Continuar"}
+            {carregando ? "Salvando..." : "Salvar Nova Senha"}
             {!carregando && (
               <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
                 arrow_forward
@@ -89,12 +122,10 @@ export default function RedefSenha() {
         <div className="mt-8 pt-8 border-t border-outline-variant/15 flex flex-col items-center">
           <Link
             className="inline-flex items-center gap-2 text-primary hover:text-primary-container font-label font-medium text-sm transition-colors group"
-            to="/"
+            to="/login/redefinirSenha"
           >
-            <span className="material-symbols-outlined text-sm">
-              arrow_back
-            </span>
-            Voltar para o Login
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            Voltar
           </Link>
         </div>
       </div>

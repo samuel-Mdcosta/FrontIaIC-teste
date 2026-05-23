@@ -35,6 +35,34 @@ export function getPublicHeaders() {
   }
 }
 
+// --- Redefinição de Senha ---
+
+export async function verificarEmailRedef(email) {
+  const res = await fetch(`${BASE_URL}/api/users/verificarEmail`, {
+    method: 'POST',
+    headers: getPublicHeaders(),
+    body: JSON.stringify({ email }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'E-mail não encontrado.')
+  }
+  return res.json()
+}
+
+export async function redefinirSenha(email, senha, senha_confirmation) {
+  const res = await fetch(`${BASE_URL}/api/users/redefinirSenha`, {
+    method: 'POST',
+    headers: getPublicHeaders(),
+    body: JSON.stringify({ email, senha, senha_confirmation }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Erro ao redefinir senha.')
+  }
+  return res.json()
+}
+
 // --- BASE URL ---
 
 export { BASE_URL }

@@ -8,6 +8,7 @@ import Perguntas from "./pages/Perguntas";
 import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
 import RedefSenha from "./pages/RedefSenha";
+import NovaSenha from "./pages/NovaSenha";
 
 function RotaProtegida({ children }) {
   if (!isAuthenticated()) {
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/" element={<MainLayouts />}>
           <Route index element={<Login />} />
           <Route path="login/redefinirSenha" element={<RedefSenha />} />
+          <Route path="login/novaSenha" element={<NovaSenha />} />
 
           <Route path="inicio" element={<RotaProtegida><Inicio /></RotaProtegida>} />
           <Route path="chat" element={<RotaProtegida><Chat /></RotaProtegida>} />
