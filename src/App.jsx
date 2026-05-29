@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { isAuthenticated } from "./services/api";
+import { isAuthenticated, isAdmin } from "./services/api";
 import MainLayouts from "./layouts/MainLayouts";
 import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
@@ -9,11 +9,18 @@ import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
 import RedefSenha from "./pages/RedefSenha";
 import NovaSenha from "./pages/NovaSenha";
+import Admin from "./pages/Admin";
 
 function RotaProtegida({ children }) {
   if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
+  return children;
+}
+
+function RotaAdmin({ children }) {
+  if (!isAuthenticated()) return <Navigate to="/" replace />;
+  if (!isAdmin()) return <Navigate to="/inicio" replace />;
   return children;
 }
 
@@ -31,6 +38,7 @@ export default function App() {
           <Route path="perguntas" element={<RotaProtegida><Perguntas /></RotaProtegida>} />
           <Route path="perguntas/quizz/:tema" element={<RotaProtegida><Quiz /></RotaProtegida>} />
           <Route path="perfil" element={<RotaProtegida><Perfil /></RotaProtegida>} />
+          <Route path="admin" element={<RotaAdmin><Admin /></RotaAdmin>} />
         </Route>
       </Routes>
     </BrowserRouter>

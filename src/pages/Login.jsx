@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL, getPublicHeaders, saveToken } from "../services/api";
+import { BASE_URL, getPublicHeaders, saveToken, saveRole } from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,7 +30,8 @@ export default function Login() {
       }
 
       saveToken(data.token);
-      navigate("/inicio");
+      saveRole(data.role);
+      navigate(data.role === 'admin' ? '/admin' : '/inicio');
     } catch (e) {
       setLoginErro(e.message);
     } finally {

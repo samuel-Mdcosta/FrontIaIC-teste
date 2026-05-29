@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { isAdmin } from "../services/api";
 
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
+  const admin = isAdmin();
 
   return (
     <header className="fixed top-0 w-full z-50 bg-slate-50/70 backdrop-blur-xl px-8 h-20 mx-auto">
@@ -16,6 +18,9 @@ export default function Header() {
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/chat">Chat</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perguntas">Perguntas</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perfil">Perfil</a>
+            {admin && (
+              <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/admin">Admin</a>
+            )}
           </nav>
         </div>
 
@@ -80,6 +85,15 @@ export default function Header() {
             >
               Perfil
             </a>
+            {admin && (
+              <a
+                className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
+                href="/admin"
+                onClick={() => setMenuAberto(false)}
+              >
+                Admin
+              </a>
+            )}
             {/* Search no mobile */}
             <div className="pt-2 pb-1">
               <input
