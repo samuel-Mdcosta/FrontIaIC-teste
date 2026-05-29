@@ -6,15 +6,12 @@ function iniciais(nome) {
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
 
-function formatarUltimoAcesso(dateString) {
-  if (!dateString) return '—';
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return 'Hoje';
-  if (diffDays === 1) return 'Ontem';
-  if (diffDays < 7) return `${diffDays} dias atrás`;
-  return date.toLocaleDateString('pt-BR');
+function formatarTempo(segundos) {
+  if (!segundos) return '—';
+  const h = Math.floor(segundos / 3600);
+  const m = Math.floor((segundos % 3600) / 60);
+  if (h > 0) return `${h}h ${m}min`;
+  return `${m}min`;
 }
 
 function corTaxa(taxa) {
@@ -80,10 +77,10 @@ export default function Admin() {
               <tr className="bg-surface-container-low/50">
                 <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">Nome do Aluno</th>
                 <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">E-mail</th>
-                <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Sessões Chat</th>
-                <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Último Acesso</th>
+                <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Tempo no Chat</th>
+                <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Quantidade de Exercicios</th>
                 <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">Taxa de Acerto</th>
-                <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-right">Ações</th>
+                <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-right">Quantidade de Erros</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
@@ -119,10 +116,10 @@ export default function Admin() {
                       </td>
                       <td className="px-6 py-4 text-sm text-on-surface-variant">{aluno.email}</td>
                       <td className="px-6 py-4 text-sm text-on-surface-variant text-center">
-                        {aluno.sessoes_chat ?? '—'}
+                        {formatarTempo(aluno.tempo_total_chat)}
                       </td>
-                      <td className="px-6 py-4 text-xs text-on-surface-variant text-center">
-                        {formatarUltimoAcesso(aluno.ultimo_acesso)}
+                      <td className="px-6 py-4 text-sm text-on-surface-variant text-center">
+                        {aluno.tentativas_quiz ?? '—'}
                       </td>
                       <td className="px-6 py-4">
                         {taxa != null ? (
@@ -144,15 +141,8 @@ export default function Admin() {
                           </div>
                         )}
                       </td>
-                      <td className="px-8 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            className="p-2 hover:bg-surface-container-highest rounded-lg transition-all text-on-surface-variant"
-                            title="Visualizar Detalhes"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">visibility</span>
-                          </button>
-                        </div>
+                      <td className="px-8 py-4 text-sm text-on-surface-variant text-right">
+                        {aluno.erros_quiz ?? '—'}
                       </td>
                     </tr>
                   );
