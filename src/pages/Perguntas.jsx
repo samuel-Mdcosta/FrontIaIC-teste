@@ -1,4 +1,5 @@
 import { usePerguntas } from "../hooks/usePerguntas";
+import { TEMAS_QUIZ } from "../data/temasQuiz";
 
 export default function Perguntas() {
   const { tema, setTema, modo, setModo, iniciar } = usePerguntas();
@@ -33,25 +34,39 @@ export default function Perguntas() {
                 Qual será o tema do seu estudo?
               </h2>
             </div>
-            <div className="relative group">
-              <div className="absolute inset-0 bg-primary/5 rounded-[2rem] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-2 bg-surface-container-low rounded-[2rem] p-3 shadow-sm transition-all focus-within:bg-white focus-within:shadow-lg">
-                <input
-                  type="text"
-                  value={tema}
-                  onChange={(e) => setTema(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && iniciar()}
-                  className="w-full bg-transparent border-none focus:ring-0 px-3 py-3 text-on-surface placeholder:text-slate-400 font-medium leading-relaxed"
-                  placeholder="Ex: Plasticidade sináptica, Sistema límbico..."
-                />
-                <button
-                  onClick={iniciar}
-                  disabled={!tema.trim()}
-                  className="bg-gradient-to-br from-primary to-primary-container text-white h-12 w-12 flex items-center justify-center rounded-full transition-transform active:scale-90 hover:shadow-lg shadow-primary/20 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <span className="material-symbols-outlined">send</span>
-                </button>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {TEMAS_QUIZ.map(({ id, titulo }) => {
+                const selecionado = tema === titulo;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setTema(titulo)}
+                    aria-pressed={selecionado}
+                    className={`flex items-center gap-4 text-left p-4 rounded-xl border-l-4 shadow-sm transition-all ${
+                      selecionado
+                        ? "border-primary bg-primary/[0.04]"
+                        : "border-transparent bg-surface-container-lowest hover:bg-surface-container-low"
+                    }`}
+                  >
+                    <span
+                      className={`font-headline text-sm font-semibold shrink-0 w-6 ${
+                        selecionado ? "text-primary" : "text-on-surface-variant"
+                      }`}
+                    >
+                      {String(id).padStart(2, "0")}
+                    </span>
+                    <span className="text-sm font-medium leading-snug text-on-surface">
+                      {titulo}
+                    </span>
+                    {selecionado && (
+                      <span className="material-symbols-outlined text-primary ml-auto shrink-0">
+                        radio_button_checked
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
