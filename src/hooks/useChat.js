@@ -55,7 +55,10 @@ export function useChat() {
 
       const data = await response.json();
       const textoResposta = data.resposta_tutor?.resposta ?? "Sem resposta.";
-      setMensagens((prev) => [...prev, { tipo: "ia", texto: textoResposta }]);
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "ia", texto: textoResposta, uso: data.uso_tokens ?? null },
+      ]);
     } catch (e) {
       setErro(e.message);
     } finally {

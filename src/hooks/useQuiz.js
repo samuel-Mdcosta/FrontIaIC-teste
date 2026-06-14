@@ -18,6 +18,7 @@ export function useQuiz() {
   const [questoes, setQuestoes] = useState([]);
   const [carregandoQuestoes, setCarregandoQuestoes] = useState(true);
   const [erroQuestoes, setErroQuestoes] = useState(null);
+  const [usoTokens, setUsoTokens] = useState(null);
 
   const [questaoAtual, setQuestaoAtual] = useState(0);
   const [respostaSelecionada, setRespostaSelecionada] = useState(null);
@@ -39,6 +40,7 @@ export function useQuiz() {
 
         const data = await response.json();
         setQuestoes(data.quizz_gerado_llm?.questoes ?? []);
+        setUsoTokens(data.uso_tokens ?? null);
       } catch (e) {
         setErroQuestoes(e.message);
       } finally {
@@ -88,6 +90,7 @@ export function useQuiz() {
     questoes,
     carregandoQuestoes,
     erroQuestoes,
+    usoTokens,
     questaoAtual,
     respostaSelecionada,
     setRespostaSelecionada,
