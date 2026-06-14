@@ -16,17 +16,27 @@ export function useChat() {
 
   const inicioSessao = useRef(null);
 
-  // Salva o tempo de uso ao desmontar o componente
+  // Salva o tempo de uso ao fechar/atualizar a aba ou ao desmontar o componente.
+  // O cleanup do useEffect sozinho não roda quando a aba/navegador é fechado,
+  // então usamos também o evento "pagehide" (disparado em fechar/refresh/navegar).
   useEffect(() => {
-    return () => {
+    function salvarTempo() {
       if (!inicioSessao.current) return;
       const segundos = Math.round((Date.now() - inicioSessao.current) / 1000);
+      inicioSessao.current = null; // evita envio duplicado (pagehide + unmount)
+      if (segundos < 1) return;
       fetch(`${BASE_URL}/api/users/login/chat/salvarUso`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({ tempoUsoChat: segundos }),
         keepalive: true,
       });
+    }
+
+    window.addEventListener("pagehide", salvarTempo);
+    return () => {
+      window.removeEventListener("pagehide", salvarTempo);
+      salvarTempo();
     };
   }, []);
 
