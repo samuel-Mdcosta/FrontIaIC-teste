@@ -17,11 +17,11 @@ export default function Chat() {
         {/* Welcome Header */}
         <div className="text-center space-y-4 py-12">
           <h2 className="text-4xl md:text-5xl font-extrabold font-headline text-primary tracking-tight">
-            Olá, Pesquisador.
+            Olá, Acadêmico.
           </h2>
           <p className="text-lg text-secondary font-medium max-w-2xl mx-auto leading-relaxed">
             Bem-vindo ao seu ambiente de análise avançada. Como posso auxiliar
-            nos seus estudos de neuromedicina hoje?
+            nos seus estudos de neurociências hoje?
           </p>
         </div>
 

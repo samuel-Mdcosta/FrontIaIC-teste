@@ -96,7 +96,7 @@ export default function Login() {
               Synapse Academic
             </h1>
             <p className="text-on-surface-variant font-body text-sm">
-              Acesse sua plataforma de pesquisa neuromedicina.
+              Acesse sua plataforma de pesquisa neurociências.
             </p>
           </div>
 

@@ -11,7 +11,7 @@ export default function Inicio() {
           Iniciação Científica — Uniderp
         </span>
         <h1 className="font-headline text-5xl md:text-6xl font-bold tracking-tight text-primary leading-tight max-w-4xl mx-auto">
-          Tutor Virtual de Neuromedicina com IA
+          Tutor Virtual de Neurociências com IA
         </h1>
         <p className="text-on-surface-variant text-lg max-w-2xl mx-auto leading-relaxed">
           Um sistema de tutoria baseado em{" "}
