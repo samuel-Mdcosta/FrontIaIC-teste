@@ -154,29 +154,6 @@ export default function Inicio() {
           </div>
         </div>
       </section>
-
-      {/* Stack Badge */}
-      <section className="py-10 text-center space-y-4">
-        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-          Stack tecnológica
-        </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          {[
-            "Gemma 3 27B",
-            "Nomic Embeddings",
-            "MongoDB Atlas",
-            "FastAPI",
-            "RAG Pipeline",
-          ].map((tech) => (
-            <span
-              key={tech}
-              className="px-4 py-2 bg-surface-container-high text-on-surface-variant text-xs font-label font-semibold rounded-full"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-      </section>
     </main>
   );
 }

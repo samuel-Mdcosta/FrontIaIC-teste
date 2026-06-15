@@ -34,11 +34,6 @@ export default function Header() {
             />
           </div>
 
-          {/* Dark mode */}
-          <button className="p-2 hover:bg-slate-200/50 rounded-lg transition-all">
-            <span className="material-symbols-outlined text-blue-900">dark_mode</span>
-          </button>
-
           {/* Hambúrguer — mobile */}
           <button
             className="md:hidden p-2 hover:bg-slate-200/50 rounded-lg transition-all"
@@ -94,14 +89,6 @@ export default function Header() {
                 Admin
               </a>
             )}
-            {/* Search no mobile */}
-            <div className="pt-2 pb-1">
-              <input
-                className="w-full bg-slate-100 border-none rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20"
-                placeholder="Search..."
-                type="text"
-              />
-            </div>
           </nav>
         </div>
       )}
