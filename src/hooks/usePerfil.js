@@ -1,18 +1,6 @@
 import { useState, useEffect } from "react";
-import { BASE_URL, getAuthHeaders, clearToken } from "../services/api";
+import { BASE_URL, getAuthHeaders, clearToken, atualizarPerfil } from "../services/api";
 import { useNavigate } from "react-router-dom";
-
-// GET /api/user
-// Response: { id, nome, email, ... }
-
-// GET /api/users/login/chat/quantidade
-// Response: { quantidade: number }
-
-// GET /api/users/login/tentativas/quantidade
-// Response: { quantidade: number }
-
-// POST /api/users/logout
-// Response: { message: "..." }
 
 export function usePerfil() {
   const [perfil, setPerfil] = useState(null);
@@ -59,6 +47,17 @@ export function usePerfil() {
     buscarPerfil();
   }, []);
 
+  // Salva nome e/ou foto no backend e atualiza o estado local.
+  async function salvarPerfil({ nome, foto }) {
+    const usuario = await atualizarPerfil({ nome, foto });
+    setPerfil((p) => ({
+      ...p,
+      nome: usuario.nome ?? p.nome,
+      foto: usuario.foto ?? null,
+    }));
+    return usuario;
+  }
+
   async function logout() {
     try {
       await fetch(`${BASE_URL}/api/users/logout`, {
@@ -71,5 +70,5 @@ export function usePerfil() {
     }
   }
 
-  return { perfil, carregando, erro, logout };
+  return { perfil, carregando, erro, logout, salvarPerfil };
 }

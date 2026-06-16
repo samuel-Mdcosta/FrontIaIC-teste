@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { usePerfil } from "../hooks/usePerfil";
 
 export default function Perfil() {
-  const { perfil, carregando, erro, logout } = usePerfil();
+  const { perfil, carregando, erro, logout, salvarPerfil } = usePerfil();
+  const [editando, setEditando] = useState(false);
 
   if (carregando) {
     return (
@@ -91,7 +93,10 @@ export default function Perfil() {
 
         {/* Ações */}
         <div className="flex gap-3">
-          <button className="flex-1 border-2 border-primary text-primary font-headline font-bold py-4 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2">
+          <button
+            onClick={() => setEditando(true)}
+            className="flex-1 border-2 border-primary text-primary font-headline font-bold py-4 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
+          >
             <span className="material-symbols-outlined">edit</span>
             Editar Perfil
           </button>
@@ -105,6 +110,173 @@ export default function Perfil() {
         </div>
 
       </div>
+
+      {editando && (
+        <ModalEditarPerfil
+          perfil={perfil}
+          onFechar={() => setEditando(false)}
+          onSalvar={salvarPerfil}
+        />
+      )}
     </main>
+  );
+}
+
+const TAMANHO_MAX_FOTO = 2 * 1024 * 1024; // 2 MB
+
+function lerArquivoComoDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function ModalEditarPerfil({ perfil, onFechar, onSalvar }) {
+  const [nome, setNome] = useState(perfil.nome ?? "");
+  const [foto, setFoto] = useState(perfil.foto ?? null);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState(null);
+
+  async function handleArquivo(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErro(null);
+
+    if (!file.type.startsWith("image/")) {
+      setErro("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > TAMANHO_MAX_FOTO) {
+      setErro("A imagem deve ter no máximo 2 MB.");
+      return;
+    }
+
+    try {
+      const dataUrl = await lerArquivoComoDataURL(file);
+      setFoto(dataUrl);
+    } catch (err) {
+      setErro(err.message);
+    }
+  }
+
+  async function handleSalvar(e) {
+    e.preventDefault();
+    setErro(null);
+
+    const nomeLimpo = nome.trim();
+    if (nomeLimpo.length < 3) {
+      setErro("O nome deve ter ao menos 3 caracteres.");
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      // Envia apenas o que mudou.
+      const alteracoes = {};
+      if (nomeLimpo !== perfil.nome) alteracoes.nome = nomeLimpo;
+      if (foto !== (perfil.foto ?? null)) alteracoes.foto = foto;
+
+      if (Object.keys(alteracoes).length > 0) {
+        await onSalvar(alteracoes);
+      }
+      onFechar();
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+      onClick={onFechar}
+    >
+      <div
+        className="bg-surface-container-lowest rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleSalvar} className="p-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-headline text-xl font-bold text-on-surface">Editar Perfil</h2>
+            <button
+              type="button"
+              onClick={onFechar}
+              className="text-on-surface-variant hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          {/* Foto */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-md border-4 border-surface-container-lowest">
+              {foto ? (
+                <img src={foto} alt="Pré-visualização" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-4xl">person</span>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <label className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                Trocar foto
+                <input type="file" accept="image/*" className="hidden" onChange={handleArquivo} />
+              </label>
+              {foto && (
+                <button
+                  type="button"
+                  onClick={() => setFoto(null)}
+                  className="text-sm font-medium text-error hover:underline"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Nome */}
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest text-on-surface-variant font-label">
+              Nome
+            </label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 text-on-surface focus:outline-none focus:border-primary"
+              placeholder="Seu nome"
+            />
+          </div>
+
+          {erro && <p className="text-sm text-error">{erro}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onFechar}
+              disabled={salvando}
+              className="flex-1 border-2 border-outline-variant/30 text-on-surface-variant font-headline font-bold py-3 rounded-xl hover:bg-surface-container-low transition-all disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={salvando}
+              className="flex-1 bg-primary text-white font-headline font-bold py-3 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {salvando ? (
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+              ) : (
+                "Salvar"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

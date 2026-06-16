@@ -76,6 +76,29 @@ export async function redefinirSenha(email, senha, senha_confirmation) {
   return res.json()
 }
 
+// --- Perfil ---
+// POST /api/users/atualizarPerfil
+// Body: { nome?, foto? }  (foto = data URL base64 ou null para remover)
+// Response: { message, usuario: { id, nome, email, foto, role } }
+
+export async function atualizarPerfil({ nome, foto } = {}) {
+  const body = {}
+  if (nome !== undefined) body.nome = nome
+  if (foto !== undefined) body.foto = foto
+
+  const res = await fetch(`${BASE_URL}/api/users/atualizarPerfil`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao atualizar perfil: ${res.status}`)
+  }
+  const data = await res.json()
+  return data.usuario ?? data
+}
+
 // --- Admin ---
 // Rotas ainda não implementadas no backend. Esperado quando prontas:
 //
