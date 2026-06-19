@@ -99,17 +99,6 @@ export async function atualizarPerfil({ nome, foto } = {}) {
   return data.usuario ?? data
 }
 
-// --- Admin ---
-// Rotas ainda não implementadas no backend. Esperado quando prontas:
-//
-// GET  /api/admin/alunos
-// Response: { message, dado: [{ id, nome, email, foto,
-//              sessoes_chat, tempo_total_chat,
-//              tentativas_quiz, acertos_quiz, erros_quiz, taxa_acerto,
-//              ultimo_acesso }] }
-//
-// Backend precisará ter campo `role` em usuarios para controle de acesso.
-
 export async function listarAlunos() {
   const res = await fetch(`${BASE_URL}/api/admin/alunos`, {
     headers: getAuthHeaders(),
@@ -122,6 +111,16 @@ export async function listarAlunos() {
   return Array.isArray(data.dado) ? data.dado : data
 }
 
-// --- BASE URL ---
+export async function listarTemasAluno(alunoId) {
+  const res = await fetch(`${BASE_URL}/api/admin/alunos/${alunoId}/temas`, {
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao buscar temas do aluno: ${res.status}`)
+  }
+  const data = await res.json()
+  return Array.isArray(data.dado) ? data.dado : data
+}
 
 export { BASE_URL }
