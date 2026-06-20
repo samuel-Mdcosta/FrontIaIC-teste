@@ -38,12 +38,6 @@ export default function Chat() {
                   <div className="prose prose-slate max-w-none text-on-surface leading-relaxed">
                     <p>{msg.texto}</p>
                   </div>
-                  {msg.uso && (
-                    <p className="flex items-center gap-1 text-[11px] text-on-surface-variant font-medium">
-                      <span className="material-symbols-outlined text-sm">token</span>
-                      {msg.uso.total} tokens (entrada {msg.uso.entrada} · saída {msg.uso.saida})
-                    </p>
-                  )}
                 </div>
               </div>
             ) : (

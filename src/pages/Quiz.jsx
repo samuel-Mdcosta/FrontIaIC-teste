@@ -8,7 +8,6 @@ export default function Quiz() {
     questoes,
     carregandoQuestoes,
     erroQuestoes,
-    usoTokens,
     questaoAtual,
     respostaSelecionada,
     setRespostaSelecionada,
@@ -65,12 +64,6 @@ export default function Quiz() {
               style={{ width: `${progresso}%` }}
             />
           </div>
-          {usoTokens && (
-            <p className="flex items-center gap-1 text-[11px] text-on-surface-variant font-medium">
-              <span className="material-symbols-outlined text-sm">token</span>
-              {usoTokens.total} tokens na geração (entrada {usoTokens.entrada} · saída {usoTokens.saida})
-            </p>
-          )}
         </div>
 
         {/* Pergunta */}
