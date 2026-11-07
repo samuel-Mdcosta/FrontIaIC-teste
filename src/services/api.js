@@ -95,4 +95,34 @@ export async function listarTemasAluno(alunoId) {
   return Array.isArray(data.dado) ? data.dado : data
 }
 
+// --- Desempenho do aluno ---
+// GET /api/users/login/desempenho
+// Response: { questoes_respondidas, taxa_acerto, tentativas, desempenho_por_tema: [...], temas_nao_praticados: [...] }
+
+export async function buscarDesempenho() {
+  const res = await fetch(`${BASE_URL}/api/users/login/desempenho`, {
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao buscar desempenho: ${res.status}`)
+  }
+  return res.json()
+}
+
+// GET /api/users/login/desempenho/feedback
+// Response: { status: "ok" | "sem_dados", feedback: { resumo_geral, areas_prioritarias, pontos_fortes, proximos_passos } | null,
+//             total_tentativas, gerado_em, em_cache }
+
+export async function buscarFeedbackDesempenho() {
+  const res = await fetch(`${BASE_URL}/api/users/login/desempenho/feedback`, {
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao gerar feedback de desempenho: ${res.status}`)
+  }
+  return res.json()
+}
+
 export { BASE_URL }

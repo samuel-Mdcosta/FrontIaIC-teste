@@ -1,11 +1,17 @@
 import { useNavigate } from "react-router-dom";
+import FeedbackDesempenho from "./FeedbackDesempenho";
+import { useFeedbackDesempenho } from "../hooks/useFeedbackDesempenho";
 
 // Props:
 //   questoes  — array de questões respondidas
 //   respostas — array de índices escolhidos pelo usuário (mesma ordem de questoes)
+//   registro  — "pendente" | "ok" | "erro": situação do salvamento da tentativa no backend
 
-export default function QuizResultado({ questoes, respostas }) {
+export default function QuizResultado({ questoes, respostas, registro }) {
   const navigate = useNavigate();
+  // O feedback considera todo o histórico do aluno, então só é pedido depois que esta tentativa foi salva.
+  const feedback = useFeedbackDesempenho({ habilitado: registro === "ok" });
+
   const acertos = respostas.filter((r, i) => r === questoes[i]?.correta).length;
   const percentual = Math.round((acertos / questoes.length) * 100);
 
@@ -32,8 +38,33 @@ export default function QuizResultado({ questoes, respostas }) {
         <span className="text-primary font-headline font-bold text-3xl">{percentual}%</span>
       </div>
 
+      {/* Feedback de desempenho (rendimento do aluno, não das questões) */}
+      <section className="mb-12 space-y-4">
+        <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface-variant">
+          Feedback de desempenho
+        </h2>
+        {registro === "erro" ? (
+          <div role="alert" className="flex gap-4 items-center p-6 bg-error/5 rounded-2xl border border-error/20">
+            <span className="material-symbols-outlined text-error">error</span>
+            <p className="text-sm text-on-surface">
+              Não foi possível salvar esta tentativa, então seu feedback de desempenho não foi atualizado.
+            </p>
+          </div>
+        ) : (
+          <FeedbackDesempenho
+            dados={feedback.dados}
+            carregando={registro === "pendente" || feedback.carregando}
+            erro={feedback.erro}
+            onTentarNovamente={feedback.recarregar}
+          />
+        )}
+      </section>
+
       {/* Revisão por questão */}
-      <div className="space-y-4 mb-10">
+      <section className="mb-10 space-y-4">
+        <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface-variant">
+          Revisão das questões
+        </h2>
         {questoes.map((q, i) => {
           const acertou = respostas[i] === q.correta;
           return (
@@ -56,15 +87,24 @@ export default function QuizResultado({ questoes, respostas }) {
             </div>
           );
         })}
-      </div>
+      </section>
 
-      <button
-        onClick={() => navigate("/perguntas")}
-        className="w-full primary-gradient text-white py-5 rounded-xl font-headline font-bold text-lg hover:shadow-xl transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3"
-      >
-        <span className="material-symbols-outlined">refresh</span>
-        Nova Sessão
-      </button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={() => navigate("/desempenho")}
+          className="flex-1 border-2 border-primary text-primary py-5 rounded-xl font-headline font-bold text-lg hover:bg-primary hover:text-white transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3"
+        >
+          <span className="material-symbols-outlined">insights</span>
+          Meu Desempenho
+        </button>
+        <button
+          onClick={() => navigate("/perguntas")}
+          className="flex-1 primary-gradient text-white py-5 rounded-xl font-headline font-bold text-lg hover:shadow-xl transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3"
+        >
+          <span className="material-symbols-outlined">refresh</span>
+          Nova Sessão
+        </button>
+      </div>
     </main>
   );
 }

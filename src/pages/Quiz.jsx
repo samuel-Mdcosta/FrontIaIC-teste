@@ -14,6 +14,7 @@ export default function Quiz() {
     respostaConfirmada,
     respostas,
     fim,
+    registro,
     confirmar,
     avancar,
     q,
@@ -43,7 +44,7 @@ export default function Quiz() {
   }
 
   if (fim) {
-    return <QuizResultado questoes={questoes} respostas={respostas} />;
+    return <QuizResultado questoes={questoes} respostas={respostas} registro={registro} />;
   }
 
   return (

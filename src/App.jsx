@@ -8,6 +8,7 @@ import Perguntas from "./pages/Perguntas";
 import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
 import Admin from "./pages/Admin";
+import Desempenho from "./pages/Desempenho";
 
 function RotaProtegida({ children }) {
   if (!isAuthenticated()) {
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="chat" element={<RotaProtegida><Chat /></RotaProtegida>} />
           <Route path="perguntas" element={<RotaProtegida><Perguntas /></RotaProtegida>} />
           <Route path="perguntas/quizz/:tema" element={<RotaProtegida><Quiz /></RotaProtegida>} />
+          <Route path="desempenho" element={<RotaProtegida><Desempenho /></RotaProtegida>} />
           <Route path="perfil" element={<RotaProtegida><Perfil /></RotaProtegida>} />
           <Route path="admin" element={<RotaAdmin><Admin /></RotaAdmin>} />
         </Route>

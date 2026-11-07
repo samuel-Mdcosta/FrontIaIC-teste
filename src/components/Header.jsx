@@ -17,6 +17,7 @@ export default function Header() {
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/inicio">Home</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/chat">Chat</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perguntas">Perguntas</a>
+            <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/desempenho">Desempenho</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perfil">Perfil</a>
             {admin && (
               <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/admin">Admin</a>
@@ -63,6 +64,13 @@ export default function Header() {
               onClick={() => setMenuAberto(false)}
             >
               Perguntas
+            </a>
+            <a
+              className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
+              href="/desempenho"
+              onClick={() => setMenuAberto(false)}
+            >
+              Desempenho
             </a>
             <a
               className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
