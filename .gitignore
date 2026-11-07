@@ -25,3 +25,8 @@ dist-ssr
 .claude
 .env.production
 .env.development
+
+# Variáveis de ambiente: só o .env.example vai para o repositório
+.env
+.env.*
+!.env.example
