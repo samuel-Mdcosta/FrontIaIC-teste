@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BASE_URL, getPublicHeaders, saveToken, saveRole } from "../services/api";
 
 export default function Login() {
@@ -139,17 +139,9 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <label className="block font-label text-[10px] uppercase tracking-widest font-semibold text-outline">
-                      Senha
-                    </label>
-                    <Link
-                      className="font-label text-[10px] uppercase tracking-widest font-semibold text-primary hover:underline"
-                      to="/login/redefinirSenha"
-                    >
-                      Esqueci minha senha
-                    </Link>
-                  </div>
+                  <label className="block font-label text-[10px] uppercase tracking-widest font-semibold text-outline">
+                    Senha
+                  </label>
                   <input
                     className="w-full bg-surface-container-highest border-none rounded-lg px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="••••••••"

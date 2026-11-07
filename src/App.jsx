@@ -7,8 +7,6 @@ import Chat from "./pages/Chat";
 import Perguntas from "./pages/Perguntas";
 import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
-import RedefSenha from "./pages/RedefSenha";
-import NovaSenha from "./pages/NovaSenha";
 import Admin from "./pages/Admin";
 
 function RotaProtegida({ children }) {
@@ -30,8 +28,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainLayouts />}>
           <Route index element={<Login />} />
-          <Route path="login/redefinirSenha" element={<RedefSenha />} />
-          <Route path="login/novaSenha" element={<NovaSenha />} />
 
           <Route path="inicio" element={<RotaProtegida><Inicio /></RotaProtegida>} />
           <Route path="chat" element={<RotaProtegida><Chat /></RotaProtegida>} />
