@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import FeedbackDesempenho from "../components/FeedbackDesempenho";
 import { useDesempenho } from "../hooks/useDesempenho";
 import { TEMAS_QUIZ } from "../data/temasQuiz";
-import { formatarTaxa, nivelInfo, TENDENCIAS } from "../utils/desempenho";
+import { formatarTaxa, nivelInfo, temaPraticavel, TENDENCIAS } from "../utils/desempenho";
 
 export default function Desempenho() {
   const navigate = useNavigate();
@@ -69,7 +69,8 @@ export default function Desempenho() {
           <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Indicador valor={resumo.questoes_respondidas} rotulo="Questões respondidas" />
             <Indicador valor={formatarTaxa(resumo.taxa_acerto)} rotulo="Taxa de acerto geral" />
-            <Indicador valor={`${temas.length}/${TEMAS_QUIZ.length}`} rotulo="Temas praticados" />
+            {/* Só os temas atuais: tentativas antigas podem ter temas que saíram da lista. */}
+            <Indicador valor={`${temas.filter((t) => temaPraticavel(t.tema)).length}/${TEMAS_QUIZ.length}`} rotulo="Temas praticados" />
           </section>
 
           {/* Feedback da IA */}

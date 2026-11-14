@@ -125,4 +125,57 @@ export async function buscarFeedbackDesempenho() {
   return res.json()
 }
 
+// --- Quiz (banco de questões) ---
+// POST /api/users/login/tentativas/perguntas   Body: { tema, modo }
+// O backend sorteia as questões e NÃO envia o gabarito.
+// Response: { quiz_id, tema, modo, aviso, questoes: [{ id, dificuldade, pergunta, opcoes, subtema, referencias }] }
+
+export async function iniciarQuiz(tema, modo) {
+  const res = await fetch(`${BASE_URL}/api/users/login/tentativas/perguntas`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ tema, modo }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao buscar as questões: ${res.status}`)
+  }
+  return res.json()
+}
+
+// POST /api/users/login/quiz/:quizId/responder   Body: { questao_id, indice }
+// Registra a resposta INICIAL (a primeira é a que vale) e só depois devolve o feedback, se o quiz for "com_feedback".
+// Ao registrar a última, o backend conclui o quiz e salva a tentativa (quiz_finalizado: true).
+// Response: { registrada, ja_respondida, resposta_inicial, quiz_finalizado,
+//             feedback?: { correta, escolhida, acertou, explicacao, explicacoes_alternativas: [{ indice, letra, explicacao }], fontes } }
+
+export async function responderQuestao(quizId, questaoId, indice) {
+  const res = await fetch(`${BASE_URL}/api/users/login/quiz/${quizId}/responder`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ questao_id: questaoId, indice }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao registrar a resposta: ${res.status}`)
+  }
+  return res.json()
+}
+
+// GET /api/users/login/quiz/:quizId/gabarito
+// Gabarito com as justificativas, só das questões que o aluno já respondeu.
+// Response: { quiz_id, tema, modo, finalizado, pendentes,
+//             questoes: [{ ordem, id, correta, escolhida, acertou, explicacao, explicacoes_alternativas, fontes }] }
+
+export async function buscarGabarito(quizId) {
+  const res = await fetch(`${BASE_URL}/api/users/login/quiz/${quizId}/gabarito`, {
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao buscar o gabarito: ${res.status}`)
+  }
+  return res.json()
+}
+
 export { BASE_URL }

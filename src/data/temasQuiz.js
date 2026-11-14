@@ -1,15 +1,16 @@
-// Fonte única dos temas do quiz no front.
-// O `titulo` é o texto exato enviado ao backend (Opção A) e DEVE ser idêntico,
-// byte a byte, à lista canônica em ragiaic/config/temas.php.
+// Fonte única dos temas do quiz no front: os temas do banco de questões.
+// O `titulo` é o texto exato enviado ao backend e DEVE ser idêntico, byte a byte,
+// à lista canônica em ragiaic/config/temas.php (e ao `tema` das questões importadas).
 export const TEMAS_QUIZ = [
-  { id: 1, titulo: "Sistemas Sensoriais e Vias Aferentes" },
-  { id: 2, titulo: "Sensação, Percepção e Atenção" },
-  { id: 3, titulo: "Organização Cortical e Áreas Funcionais" },
-  { id: 4, titulo: "Hipocampo e Sistema Límbico" },
-  { id: 5, titulo: "Memória Espacial, Temporal e Cognitiva" },
-  { id: 6, titulo: "Linguagem, Leitura e Escrita" },
-  { id: 7, titulo: "Cognição e Funções Executivas" },
-  { id: 8, titulo: "Memória e Aprendizagem" },
-  { id: 9, titulo: "Neuroplasticidade e Estimulação Cognitiva" },
-  { id: 10, titulo: "Desenvolvimento Neurocognitivo Infantil" },
+  { id: 1, titulo: "Vias visuais" },
+  { id: 2, titulo: "Organização cerebral" },
+  { id: 3, titulo: "Hipocampo e memória espacial" },
+  { id: 4, titulo: "Sistemas e processos da memória" },
+  { id: 5, titulo: "Percepção visual: vias dorsal e ventral" },
+  { id: 6, titulo: "Hemisférios cerebrais e linguagem" },
+  { id: 7, titulo: "Redes neurais da leitura e da escrita" },
+  { id: 8, titulo: "Neuroplasticidade e desenvolvimento infantil" },
 ];
+
+// Só para o resumo da tela: quem define o tamanho do quiz é o backend (config/quiz.php).
+export const QUESTOES_POR_TEMA = 10;

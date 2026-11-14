@@ -1,5 +1,5 @@
 import { usePerguntas } from "../hooks/usePerguntas";
-import { TEMAS_QUIZ } from "../data/temasQuiz";
+import { TEMAS_QUIZ, QUESTOES_POR_TEMA } from "../data/temasQuiz";
 
 export default function Perguntas() {
   const { tema, setTema, modo, setModo, iniciar } = usePerguntas();
@@ -12,12 +12,12 @@ export default function Perguntas() {
             Configuração de Estudo
           </span>
           <h1 className="font-headline text-5xl md:text-6xl font-bold tracking-tight text-primary leading-tight">
-            Prepare seu ambiente de pesquisa.
+            Prepare sua sessão de estudo.
           </h1>
         </div>
         <div className="md:col-span-4 text-right">
           <p className="text-on-surface-variant text-lg max-w-xs ml-auto border-l-2 border-outline-variant/30 pl-6 py-2">
-            Defina o tema e a modalidade para gerar suas questões com IA.
+            Escolha o tema e a modalidade de feedback para começar.
           </p>
         </div>
       </section>
@@ -178,7 +178,7 @@ export default function Perguntas() {
                       Quantidade
                     </span>
                     <span className="font-semibold text-primary">
-                      10 Questões
+                      {QUESTOES_POR_TEMA} Questões
                     </span>
                   </div>
                 </div>
@@ -189,16 +189,14 @@ export default function Perguntas() {
                 disabled={!tema.trim()}
                 className="w-full primary-gradient text-white py-5 rounded-xl font-headline font-bold text-lg hover:shadow-xl transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Gerar Questões
+                Começar
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
 
               <p className="text-[10px] text-center text-on-surface-variant uppercase tracking-widest">
-                As questões são geradas com base na{" "}
-                <span className="text-primary font-bold">
-                  literatura acadêmica
-                </span>
-                .
+                Questões baseadas em{" "}
+                <span className="text-primary font-bold">livros didáticos</span>
+                , no modelo do ENAMED, e revisadas antes de chegar a você.
               </p>
             </div>
 
@@ -207,8 +205,8 @@ export default function Perguntas() {
                 info
               </span>
               <p className="text-xs leading-relaxed text-on-surface-variant">
-                O motor RAG recupera trechos dos PDFs acadêmicos para
-                fundamentar cada questão gerada.
+                Cada questão traz a explicação do gabarito e as referências
+                bibliográficas dos livros em que se baseia.
               </p>
             </div>
           </div>

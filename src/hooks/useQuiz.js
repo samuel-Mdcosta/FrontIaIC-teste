@@ -1,37 +1,21 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { BASE_URL, getAuthHeaders } from "../services/api";
+import { iniciarQuiz, responderQuestao, buscarGabarito } from "../services/api";
 
-// Limites iguais aos da validação do backend (tentativasController).
-function textoLimitado(valor, max) {
-  if (Array.isArray(valor)) valor = valor.join(", ");
-  if (valor === null || valor === undefined) return null;
-  const texto = String(valor).trim();
-  return texto ? texto.slice(0, max) : null;
-}
-
-// Detalhe de cada questão respondida: é o que permite ao feedback de desempenho
-// identificar em quais subtemas o aluno mais erra.
-function detalharQuestoes(questoes, respostas) {
-  return questoes
-    .map((q, i) => ({
-      pergunta: textoLimitado(q.pergunta, 2000),
-      subtema: textoLimitado(q.subtema, 255),
-      resposta_escolhida: textoLimitado(q.opcoes?.[respostas[i]], 1000),
-      resposta_correta: textoLimitado(q.opcoes?.[q.correta], 1000),
-      acertou: respostas[i] === q.correta,
-      referencias: textoLimitado(q.referencias, 500),
-    }))
-    .filter((q) => q.pergunta);
-}
-
+// Fluxo do quiz com o banco de questões:
+//   1. o backend sorteia as questões e NÃO envia o gabarito;
+//   2. cada resposta é registrada no backend antes de qualquer feedback (a primeira é a que vale);
+//   3. ao registrar a última, o backend conclui o quiz e salva a tentativa (acertos e erros calculados lá);
+//   4. no fim, o gabarito completo com as justificativas vem do backend.
 export function useQuiz() {
   const { tema: temaParam } = useParams();
   const { state } = useLocation();
   const tema = decodeURIComponent(temaParam ?? "Geral");
   const modo = state?.modo ?? "com_feedback";
 
+  const [quizId, setQuizId] = useState(null);
   const [questoes, setQuestoes] = useState([]);
+  const [aviso, setAviso] = useState(null);
   const [carregandoQuestoes, setCarregandoQuestoes] = useState(true);
   const [erroQuestoes, setErroQuestoes] = useState(null);
 
@@ -39,66 +23,77 @@ export function useQuiz() {
   const [respostaSelecionada, setRespostaSelecionada] = useState(null);
   const [respostaConfirmada, setRespostaConfirmada] = useState(false);
   const [respostas, setRespostas] = useState([]);
+  // Feedback por questão (índice -> { correta, acertou, explicacao, explicacoes_alternativas, fontes }).
+  // Só existe depois que a resposta foi registrada, e só no modo com feedback.
+  const [feedbacks, setFeedbacks] = useState({});
+  const [enviando, setEnviando] = useState(false);
+  const [erroResposta, setErroResposta] = useState(null);
+  const [quizFinalizado, setQuizFinalizado] = useState(false);
   const [fim, setFim] = useState(false);
-  // Situação do registro da tentativa: "pendente" | "ok" | "erro".
-  // O feedback de desempenho só é pedido depois que a tentativa foi salva.
-  const [registro, setRegistro] = useState("pendente");
+  // Gabarito completo (liberado ao final): array na ordem das questões, ou null enquanto carrega.
+  const [gabarito, setGabarito] = useState(null);
+  const [erroGabarito, setErroGabarito] = useState(false);
 
-  // Busca as questões ao montar
+  // Cria o quiz: o backend sorteia as questões.
   useEffect(() => {
-    async function buscarQuestoes() {
-      try {
-        const response = await fetch(`${BASE_URL}/api/users/login/tentativas/perguntas`, {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ tema }),
-        });
+    let ativo = true; // ignora a resposta de uma execução antiga do efeito (ex.: StrictMode em dev)
 
-        if (!response.ok) throw new Error(`Erro ${response.status}`);
+    iniciarQuiz(tema, modo)
+      .then((data) => {
+        if (!ativo) return;
+        setQuizId(data.quiz_id ?? null);
+        setQuestoes(data.questoes ?? []);
+        setAviso(data.aviso ?? null);
+      })
+      .catch((e) => {
+        if (ativo) setErroQuestoes(e.message);
+      })
+      .finally(() => {
+        if (ativo) setCarregandoQuestoes(false);
+      });
 
-        const data = await response.json();
-        setQuestoes(data.quizz_gerado_llm?.questoes ?? []);
-      } catch (e) {
-        setErroQuestoes(e.message);
-      } finally {
-        setCarregandoQuestoes(false);
-      }
-    }
+    return () => {
+      ativo = false;
+    };
+  }, [tema, modo]);
 
-    buscarQuestoes();
-  }, [tema]);
-
+  // Ao terminar: o gabarito com as justificativas.
   useEffect(() => {
-    if (!fim || questoes.length === 0) return;
+    if (!fim || !quizId) return;
+    let ativo = true;
 
-    const acertos = respostas.filter((r, i) => r === questoes[i]?.correta).length;
-    const erros = respostas.length - acertos;
+    buscarGabarito(quizId)
+      .then((data) => {
+        if (ativo) setGabarito(data.questoes ?? []);
+      })
+      .catch(() => {
+        if (ativo) setErroGabarito(true);
+      });
 
-    async function registrarTentativa() {
-      try {
-        const response = await fetch(`${BASE_URL}/api/users/login/tentativas`, {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            conteudoAcessado: tema,
-            acertos,
-            erros,
-            questoes: detalharQuestoes(questoes, respostas),
-          }),
-        });
-        setRegistro(response.ok ? "ok" : "erro");
-      } catch {
-        setRegistro("erro");
-      }
+    return () => {
+      ativo = false;
+    };
+  }, [fim, quizId]);
+
+  // Registra a resposta no backend. Só depois disso a tela mostra o feedback.
+  async function confirmar() {
+    if (respostaSelecionada === null || enviando || respostaConfirmada) return;
+    setEnviando(true);
+    setErroResposta(null);
+    try {
+      const r = await responderQuestao(quizId, questoes[questaoAtual].id, respostaSelecionada);
+      // Se a questão já tinha resposta registrada (ex.: outra aba), vale a registrada.
+      const inicial = r.resposta_inicial ?? respostaSelecionada;
+      setRespostaSelecionada(inicial);
+      setRespostas((prev) => [...prev, inicial]);
+      if (r.feedback) setFeedbacks((prev) => ({ ...prev, [questaoAtual]: r.feedback }));
+      if (r.quiz_finalizado) setQuizFinalizado(true);
+      setRespostaConfirmada(true);
+    } catch (e) {
+      setErroResposta(e.message);
+    } finally {
+      setEnviando(false);
     }
-
-    registrarTentativa();
-  }, [fim]);
-
-  function confirmar() {
-    if (respostaSelecionada === null) return;
-    setRespostaConfirmada(true);
-    setRespostas((prev) => [...prev, respostaSelecionada]);
   }
 
   function avancar() {
@@ -109,15 +104,22 @@ export function useQuiz() {
     setQuestaoAtual((i) => i + 1);
     setRespostaSelecionada(null);
     setRespostaConfirmada(false);
+    setErroResposta(null);
   }
 
-  const q = questoes[questaoAtual];
+  const feedback = feedbacks[questaoAtual];
+  const base = questoes[questaoAtual];
+  // `correta` e `explicacao` só existem quando o backend os enviou (depois do registro).
+  const q = base ? { ...base, correta: feedback?.correta, explicacao: feedback?.explicacao } : undefined;
   const progresso = questoes.length > 0 ? (questaoAtual / questoes.length) * 100 : 0;
+  // Situação do registro da tentativa: o feedback de desempenho só é pedido depois que ela foi salva.
+  const registro = !fim ? "pendente" : quizFinalizado ? "ok" : "erro";
 
   return {
     tema,
     modo,
     questoes,
+    aviso,
     carregandoQuestoes,
     erroQuestoes,
     questaoAtual,
@@ -125,7 +127,12 @@ export function useQuiz() {
     setRespostaSelecionada,
     respostaConfirmada,
     respostas,
+    enviando,
+    erroResposta,
+    feedback,
     fim,
+    gabarito,
+    erroGabarito,
     registro,
     confirmar,
     avancar,
