@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import AvaliacaoQuiz from "../components/AvaliacaoQuiz";
 import QuizResultado from "../components/QuizResultado";
 import { useQuiz } from "../hooks/useQuiz";
 
@@ -14,6 +15,7 @@ export default function Quiz() {
   const {
     tema,
     modo,
+    quizId,
     questoes,
     aviso,
     carregandoQuestoes,
@@ -27,6 +29,8 @@ export default function Quiz() {
     erroResposta,
     feedback,
     fim,
+    precisaAvaliar,
+    concluirAvaliacao,
     gabarito,
     erroGabarito,
     registro,
@@ -74,6 +78,25 @@ export default function Quiz() {
             Escolher outro tema
           </button>
         </div>
+      </main>
+    );
+  }
+
+  // Quiz concluído: a avaliação de satisfação é obrigatória antes do resultado e do feedback.
+  if (fim && precisaAvaliar) {
+    return (
+      <main className="pt-32 pb-20 px-6 max-w-3xl mx-auto space-y-8">
+        <div className="text-center space-y-4">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+            <span className="material-symbols-outlined text-primary text-4xl">rate_review</span>
+          </div>
+          <h1 className="font-headline text-4xl font-bold text-primary">Quiz concluído!</h1>
+          <p className="text-on-surface-variant text-lg max-w-xl mx-auto">
+            Antes de ver seu resultado e o feedback, conte como foi este quiz de{" "}
+            <span className="font-semibold text-primary">{tema}</span>.
+          </p>
+        </div>
+        <AvaliacaoQuiz quizId={quizId} onConcluida={concluirAvaliacao} textoBotao="Enviar e ver meu resultado" />
       </main>
     );
   }

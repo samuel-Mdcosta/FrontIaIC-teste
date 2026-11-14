@@ -6,7 +6,8 @@ import { iniciarQuiz, responderQuestao, buscarGabarito } from "../services/api";
 //   1. o backend sorteia as questões e NÃO envia o gabarito;
 //   2. cada resposta é registrada no backend antes de qualquer feedback (a primeira é a que vale);
 //   3. ao registrar a última, o backend conclui o quiz e salva a tentativa (acertos e erros calculados lá);
-//   4. no fim, o gabarito completo com as justificativas vem do backend.
+//   4. o aluno responde a avaliação de satisfação do quiz (obrigatória);
+//   5. só então o gabarito completo com as justificativas e o feedback vêm do backend.
 export function useQuiz() {
   const { tema: temaParam } = useParams();
   const { state } = useLocation();
@@ -29,6 +30,7 @@ export function useQuiz() {
   const [enviando, setEnviando] = useState(false);
   const [erroResposta, setErroResposta] = useState(null);
   const [quizFinalizado, setQuizFinalizado] = useState(false);
+  const [avaliacaoEnviada, setAvaliacaoEnviada] = useState(false);
   const [fim, setFim] = useState(false);
   // Gabarito completo (liberado ao final): array na ordem das questões, ou null enquanto carrega.
   const [gabarito, setGabarito] = useState(null);
@@ -57,9 +59,12 @@ export function useQuiz() {
     };
   }, [tema, modo]);
 
-  // Ao terminar: o gabarito com as justificativas.
+  // Quiz concluído: o resultado (gabarito e feedback) só é liberado depois da avaliação de satisfação.
+  const precisaAvaliar = fim && quizFinalizado && !avaliacaoEnviada;
+
+  // Ao terminar (e avaliar): o gabarito com as justificativas.
   useEffect(() => {
-    if (!fim || !quizId) return;
+    if (!fim || !quizId || precisaAvaliar) return;
     let ativo = true;
 
     buscarGabarito(quizId)
@@ -73,7 +78,7 @@ export function useQuiz() {
     return () => {
       ativo = false;
     };
-  }, [fim, quizId]);
+  }, [fim, quizId, precisaAvaliar]);
 
   // Registra a resposta no backend. Só depois disso a tela mostra o feedback.
   async function confirmar() {
@@ -118,6 +123,7 @@ export function useQuiz() {
   return {
     tema,
     modo,
+    quizId,
     questoes,
     aviso,
     carregandoQuestoes,
@@ -131,6 +137,8 @@ export function useQuiz() {
     erroResposta,
     feedback,
     fim,
+    precisaAvaliar,
+    concluirAvaliacao: () => setAvaliacaoEnviada(true),
     gabarito,
     erroGabarito,
     registro,

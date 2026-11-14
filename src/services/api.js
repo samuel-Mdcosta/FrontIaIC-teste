@@ -178,4 +178,36 @@ export async function buscarGabarito(quizId) {
   return res.json()
 }
 
+// --- Avaliação de satisfação do quiz ---
+// Obrigatória ao concluir o quiz: o resultado e a análise do tutor só são liberados depois dela.
+// GET /api/users/login/avaliacao/questionario
+// Response: { versao, escala: { min, max, rotulo_min, rotulo_max }, perguntas: [{ chave, texto }], comentario: { texto, max } }
+
+export async function buscarQuestionarioAvaliacao() {
+  const res = await fetch(`${BASE_URL}/api/users/login/avaliacao/questionario`, {
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao carregar a avaliação: ${res.status}`)
+  }
+  return res.json()
+}
+
+// POST /api/users/login/quiz/:quizId/avaliacao   Body: { notas: { [chave]: 0 a 5 }, comentario? }
+// A primeira avaliação é a que vale. Response: { registrada, ja_avaliado }
+
+export async function enviarAvaliacaoQuiz(quizId, notas, comentario) {
+  const res = await fetch(`${BASE_URL}/api/users/login/quiz/${quizId}/avaliacao`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ notas, comentario: comentario?.trim() || null }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao enviar a avaliação: ${res.status}`)
+  }
+  return res.json()
+}
+
 export { BASE_URL }

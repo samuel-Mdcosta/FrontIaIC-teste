@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import AvaliacaoQuiz from "./AvaliacaoQuiz";
 import { formatarTaxa, nivelInfo, temaPraticavel, TENDENCIAS } from "../utils/desempenho";
 
 // Feedback de desempenho do aluno gerado pela IA: não comenta questões isoladas,
@@ -9,10 +10,16 @@ import { formatarTaxa, nivelInfo, temaPraticavel, TENDENCIAS } from "../utils/de
 //   carregando        — true enquanto o feedback é gerado/buscado
 //   erro              — mensagem de erro ou null
 //   onTentarNovamente — refaz o pedido
+//
+// Se o aluno ainda não avaliou o último quiz que concluiu, o backend responde `status: "avaliacao_pendente"`
+// e a análise só aparece depois da avaliação, feita aqui mesmo.
 
 export default function FeedbackDesempenho({ dados, carregando, erro, onTentarNovamente }) {
   if (carregando) return <Carregando />;
   if (erro) return <Erro mensagem={erro} onTentarNovamente={onTentarNovamente} />;
+  if (dados?.status === "avaliacao_pendente") {
+    return <AvaliacaoPendente avaliacao={dados.avaliacao} onAvaliado={onTentarNovamente} />;
+  }
   if (!dados?.feedback) return <SemDados />;
 
   const {
@@ -216,6 +223,23 @@ function Erro({ mensagem, onTentarNovamente }) {
           Tentar novamente
         </button>
       )}
+    </div>
+  );
+}
+
+function AvaliacaoPendente({ avaliacao, onAvaliado }) {
+  const quando = avaliacao?.finalizado_em ? formatarData(avaliacao.finalizado_em) : "";
+  return (
+    <div className="p-6 bg-surface-container-low rounded-2xl space-y-5">
+      <div className="flex gap-4 items-start">
+        <span className="material-symbols-outlined text-secondary">rate_review</span>
+        <p className="text-sm text-on-surface leading-relaxed">
+          Para ver a análise do tutor, avalie antes o quiz de{" "}
+          <span className="font-semibold text-primary">{avaliacao?.tema}</span> que você concluiu
+          {quando && ` em ${quando}`}.
+        </p>
+      </div>
+      <AvaliacaoQuiz quizId={avaliacao?.quiz_id} onConcluida={onAvaliado} textoBotao="Enviar e ver a análise" />
     </div>
   );
 }
