@@ -45,7 +45,7 @@ O download usa o token do professor (`fetch` com `Authorization`), por isso não
 
 ## Rodando localmente
 
-Requisitos: Node 20+ e a API do ragiaic no ar.
+Requisitos: Node 20.19+ (ou 22.12+), exigido pelo Vite 8, e a API do ragiaic no ar. O `package.json` não fixa a versão do Node (não há `engines`).
 
 ```bash
 npm install
