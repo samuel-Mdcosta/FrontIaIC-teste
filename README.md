@@ -14,7 +14,7 @@ React 19 + Vite + Tailwind CSS 3 + React Router 7. Sem backend próprio: tudo ve
 |---|---|---|
 | `/` | Login e cadastro | todos |
 | `/inicio` | Início | aluno |
-| `/perguntas` | Escolha dos temas e da modalidade (com ou sem feedback) | aluno |
+| `/perguntas` | Tipo de estudo (quiz por tema ou simulado), temas e modalidade (com ou sem feedback) | aluno |
 | `/perguntas/quizz/:tema` | Quiz, avaliação de satisfação e resultado com gabarito | aluno |
 | `/desempenho` | Desempenho por tema e feedback gerado pela IA | aluno |
 | `/perfil` | Perfil e dados do aluno | aluno |
@@ -24,10 +24,10 @@ As rotas protegidas exigem login; `/admin` exige perfil de administrador.
 
 ## Como o aluno estuda
 
-- **Quiz por tema:** 10 questões de um dos 8 temas, 30% fáceis, 50% intermediárias e 20% difíceis. O gabarito não vem do
+- **Quiz por tema:** o aluno escolhe **um** tema (um por vez) e faz 10 questões dele, 30% fáceis, 50% intermediárias e 20% difíceis. O gabarito não vem do
   backend até a resposta ser registrada, e a primeira resposta é a que vale.
-- **Simulado:** marcando 2 ou mais temas (ou todos, pelo botão "Simulado misto") o aluno faz 20 questões só com os temas
-  escolhidos. O desempenho conta para o tema real de cada questão.
+- **Simulado:** só aqui é possível marcar vários temas. O aluno marca um ou mais (ou todos, pelo botão "Simulado misto") e
+  faz 20 questões só com os temas escolhidos. O desempenho conta para o tema real de cada questão.
 - **Modalidade:** "Com feedback" mostra a explicação após cada resposta; "Sem feedback" deixa a revisão completa para o final.
 - **Avaliação de satisfação:** obrigatória ao concluir o quiz, antes de ver o resultado. As perguntas vêm do backend.
 - **Feedback de desempenho (IA):** na tela de desempenho o botão "Gerar feedback" pede a análise. Há limite de 10 por

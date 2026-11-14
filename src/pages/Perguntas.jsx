@@ -2,7 +2,7 @@ import { usePerguntas } from "../hooks/usePerguntas";
 import { TEMAS_QUIZ, SIMULADO_MISTO, QUESTOES_POR_TEMA } from "../data/temasQuiz";
 
 export default function Perguntas() {
-  const { temas, simulado, todos, alternarTema, alternarTodos, modo, setModo, iniciar } = usePerguntas();
+  const { temas, tipo, simulado, todos, escolherTipo, selecionarTema, alternarTodos, modo, setModo, iniciar } = usePerguntas();
 
   return (
     <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
@@ -17,7 +17,7 @@ export default function Perguntas() {
         </div>
         <div className="md:col-span-4 text-right">
           <p className="text-on-surface-variant text-lg max-w-xs ml-auto border-l-2 border-outline-variant/30 pl-6 py-2">
-            Escolha os temas e a modalidade de feedback para começar.
+            Escolha o tipo de estudo, o tema e a modalidade de feedback para começar.
           </p>
         </div>
       </section>
@@ -31,35 +31,58 @@ export default function Perguntas() {
                 01
               </span>
               <h2 className="font-headline text-2xl font-medium text-on-surface">
-                Quais temas você quer estudar?
+                O que você quer estudar?
               </h2>
             </div>
+            {/* Tipo de estudo: quiz de um tema ou simulado com vários */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-surface-container-low rounded-xl" role="tablist">
+              {[
+                ["quiz", "Quiz por tema", `${QUESTOES_POR_TEMA} questões de 1 tema`],
+                ["simulado", "Simulado", `${SIMULADO_MISTO.questoes} questões de 1 ou mais temas`],
+              ].map(([valor, rotulo, dica]) => (
+                <button
+                  key={valor}
+                  type="button"
+                  role="tab"
+                  aria-selected={tipo === valor}
+                  onClick={() => escolherTipo(valor)}
+                  className={`text-left px-4 py-3 rounded-lg transition-all ${
+                    tipo === valor ? "bg-surface-container-lowest shadow-sm" : "hover:bg-surface-container"
+                  }`}
+                >
+                  <span className={`block font-headline font-bold ${tipo === valor ? "text-primary" : "text-on-surface-variant"}`}>
+                    {rotulo}
+                  </span>
+                  <span className="block text-xs text-on-surface-variant">{dica}</span>
+                </button>
+              ))}
+            </div>
             <p className="text-sm text-on-surface-variant -mt-2">
-              Marque um tema para um quiz de {QUESTOES_POR_TEMA} questões, ou dois ou mais para um simulado de{" "}
-              {SIMULADO_MISTO.questoes} questões só com os temas escolhidos.
+              {simulado
+                ? "Marque um ou mais temas. Com todos marcados, o simulado cobre o conteúdo inteiro."
+                : "Escolha um tema."}
             </p>
-            {/* Seleciona (ou limpa) todos os temas: o simulado misto completo */}
-            <button
-              type="button"
-              onClick={alternarTodos}
-              aria-pressed={todos}
-              className={`w-full flex items-center gap-4 text-left p-5 rounded-xl border-l-4 shadow-sm transition-all ${
-                todos
-                  ? "border-primary bg-primary/[0.04]"
-                  : "border-transparent bg-surface-container-lowest hover:bg-surface-container-low"
-              }`}
-            >
-              <span className="material-symbols-outlined text-primary shrink-0">shuffle</span>
-              <span className="flex-grow">
-                <span className="block font-headline font-bold text-on-surface">{SIMULADO_MISTO.titulo}</span>
-                <span className="block text-sm text-on-surface-variant">
-                  {SIMULADO_MISTO.questoes} questões de todos os temas, em níveis variados.
+            {simulado && (
+              <button
+                type="button"
+                onClick={alternarTodos}
+                aria-pressed={todos}
+                className={`w-full flex items-center gap-4 text-left p-5 rounded-xl border-l-4 shadow-sm transition-all ${
+                  todos
+                    ? "border-primary bg-primary/[0.04]"
+                    : "border-transparent bg-surface-container-lowest hover:bg-surface-container-low"
+                }`}
+              >
+                <span className="material-symbols-outlined text-primary shrink-0">shuffle</span>
+                <span className="flex-grow">
+                  <span className="block font-headline font-bold text-on-surface">{SIMULADO_MISTO.titulo}</span>
+                  <span className="block text-sm text-on-surface-variant">Todos os temas, em níveis variados.</span>
                 </span>
-              </span>
-              <span className="material-symbols-outlined text-primary shrink-0">
-                {todos ? "check_box" : "check_box_outline_blank"}
-              </span>
-            </button>
+                <span className="material-symbols-outlined text-primary shrink-0">
+                  {todos ? "check_box" : "check_box_outline_blank"}
+                </span>
+              </button>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {TEMAS_QUIZ.map(({ id, titulo }) => {
                 const selecionado = temas.includes(titulo);
@@ -67,7 +90,7 @@ export default function Perguntas() {
                   <button
                     key={id}
                     type="button"
-                    onClick={() => alternarTema(titulo)}
+                    onClick={() => selecionarTema(titulo)}
                     aria-pressed={selecionado}
                     className={`flex items-center gap-4 text-left p-4 rounded-xl border-l-4 shadow-sm transition-all ${
                       selecionado
@@ -86,7 +109,9 @@ export default function Perguntas() {
                       {titulo}
                     </span>
                     <span className="material-symbols-outlined text-primary ml-auto shrink-0">
-                      {selecionado ? "check_box" : "check_box_outline_blank"}
+                      {simulado
+                        ? selecionado ? "check_box" : "check_box_outline_blank"
+                        : selecionado ? "radio_button_checked" : "radio_button_unchecked"}
                     </span>
                   </button>
                 );
@@ -181,10 +206,10 @@ export default function Perguntas() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
                     <span className="text-sm text-on-surface-variant">
-                      {temas.length > 1 ? "Temas" : "Tema"}
+                      {simulado ? "Temas" : "Tema"}
                     </span>
                     <span className="font-semibold text-primary truncate max-w-[160px] text-right">
-                      {temas.length === 0 ? "—" : todos ? SIMULADO_MISTO.titulo : temas.length === 1 ? temas[0] : `${temas.length} temas`}
+                      {temas.length === 0 ? "—" : !simulado ? temas[0] : todos ? "Todos os temas" : temas.length === 1 ? temas[0] : `${temas.length} temas`}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
