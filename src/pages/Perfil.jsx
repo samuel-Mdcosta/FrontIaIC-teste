@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePerfil } from "../hooks/usePerfil";
+import { RECURSOS } from "../config/recursos";
 
 export default function Perfil() {
   const { perfil, carregando, erro, logout, salvarPerfil } = usePerfil();
@@ -79,11 +80,13 @@ export default function Perfil() {
           <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4">
             Atividade Acadêmica
           </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
-              <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.sessoesRealizadas}</span>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Sessões de Chat</p>
-            </div>
+          <div className={`grid gap-4 ${RECURSOS.chat ? "grid-cols-2" : "grid-cols-1"}`}>
+            {RECURSOS.chat && (
+              <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
+                <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.sessoesRealizadas}</span>
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Sessões de Chat</p>
+              </div>
+            )}
             <div className="p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 text-center space-y-1">
               <span className="font-headline text-3xl font-bold text-primary">{perfil.stats.questoesRespondidas}</span>
               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Tentativas de Quiz</p>

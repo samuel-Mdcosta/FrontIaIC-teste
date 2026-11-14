@@ -13,6 +13,9 @@ export function useQuiz() {
   const { state } = useLocation();
   const tema = decodeURIComponent(temaParam ?? "Geral");
   const modo = state?.modo ?? "com_feedback";
+  // Simulado com temas escolhidos: chegam pelo state; a chave em texto mantém o efeito estável entre renders.
+  const temasEscolhidos = Array.isArray(state?.temas) ? state.temas : null;
+  const chaveTemas = temasEscolhidos ? temasEscolhidos.join("|") : "";
 
   const [quizId, setQuizId] = useState(null);
   const [questoes, setQuestoes] = useState([]);
@@ -40,7 +43,7 @@ export function useQuiz() {
   useEffect(() => {
     let ativo = true; // ignora a resposta de uma execução antiga do efeito (ex.: StrictMode em dev)
 
-    iniciarQuiz(tema, modo)
+    iniciarQuiz(tema, modo, chaveTemas ? chaveTemas.split("|") : null)
       .then((data) => {
         if (!ativo) return;
         setQuizId(data.quiz_id ?? null);
@@ -57,7 +60,7 @@ export function useQuiz() {
     return () => {
       ativo = false;
     };
-  }, [tema, modo]);
+  }, [tema, modo, chaveTemas]);
 
   // Quiz concluído: o resultado (gabarito e feedback) só é liberado depois da avaliação de satisfação.
   const precisaAvaliar = fim && quizFinalizado && !avaliacaoEnviada;

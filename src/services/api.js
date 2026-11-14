@@ -83,6 +83,27 @@ export async function listarAlunos() {
   return Array.isArray(data.dado) ? data.dado : data
 }
 
+// Baixa um CSV do painel do professor (rota protegida: precisa do token, então não dá para ser um <a href> simples).
+// nome: "telemetria" ou "feedback".
+export async function baixarCsvAdmin(nome) {
+  const res = await fetch(`${BASE_URL}/api/admin/exportar/${nome}.csv`, {
+    headers: { ...getAuthHeaders(), Accept: 'text/csv' },
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao baixar o CSV: ${res.status}`)
+  }
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${nome}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export async function listarTemasAluno(alunoId) {
   const res = await fetch(`${BASE_URL}/api/admin/alunos/${alunoId}/temas`, {
     headers: getAuthHeaders(),
@@ -111,8 +132,16 @@ export async function buscarDesempenho() {
 }
 
 // GET /api/users/login/desempenho/feedback
-// Response: { status: "ok" | "sem_dados", feedback: { resumo_geral, areas_prioritarias, pontos_fortes, proximos_passos } | null,
-//             total_tentativas, gerado_em, em_cache }
+// Devolve o feedback MAIS RECENTE do aluno (guardado: recarregar a página não gera outro) e o andamento de um pedido.
+// Response: { status: "ok" | "preparando" | "sem_analise" | "sem_dados" | "avaliacao_pendente",
+//             feedback: { resumo_geral, areas_prioritarias, pontos_fortes, proximos_passos } | null,
+//             gerado_em, total_tentativas, em_cache,
+//             pendente: boolean              (há um feedback a caminho: consultar de novo em alguns segundos),
+//             nova_tentativa_em_s: number | null  (o pedido não pôde ser gerado agora e será tentado de novo),
+//             pode_gerar: boolean            (o botão "Gerar feedback" vale agora),
+//             ha_novidade: boolean           (o aluno concluiu baterias que o último feedback ainda não considerou),
+//             limite_dia, restantes_hoje,
+//             avaliacao?: { quiz_id, tema, finalizado_em }   (só em "avaliacao_pendente") }
 
 export async function buscarFeedbackDesempenho() {
   const res = await fetch(`${BASE_URL}/api/users/login/desempenho/feedback`, {
@@ -120,7 +149,25 @@ export async function buscarFeedbackDesempenho() {
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || `Erro ao gerar feedback de desempenho: ${res.status}`)
+    throw new Error(data.message || `Erro ao buscar feedback de desempenho: ${res.status}`)
+  }
+  return res.json()
+}
+
+// POST /api/users/login/desempenho/feedback   (botão "Gerar feedback")
+// Pede um feedback atualizado: até 10 por dia e só se o aluno concluiu outra bateria de questões desde o último.
+// Responde na hora (202) com o mesmo formato do GET, já com `pendente: true`; o feedback é gerado em segundo plano.
+// 403: avaliação do último quiz pendente; 409: ainda não praticou ou nada novo desde o último feedback;
+// 429: os 10 do dia acabaram.
+
+export async function gerarFeedbackDesempenho() {
+  const res = await fetch(`${BASE_URL}/api/users/login/desempenho/feedback`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || `Erro ao pedir o feedback de desempenho: ${res.status}`)
   }
   return res.json()
 }
@@ -130,11 +177,12 @@ export async function buscarFeedbackDesempenho() {
 // O backend sorteia as questões e NÃO envia o gabarito.
 // Response: { quiz_id, tema, modo, aviso, questoes: [{ id, dificuldade, pergunta, opcoes, subtema, referencias }] }
 
-export async function iniciarQuiz(tema, modo) {
+// `temas` (opcional, só no simulado): os temas escolhidos pelo aluno. Sem ele, o simulado usa todos.
+export async function iniciarQuiz(tema, modo, temas) {
   const res = await fetch(`${BASE_URL}/api/users/login/tentativas/perguntas`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ tema, modo }),
+    body: JSON.stringify(temas?.length ? { tema, modo, temas } : { tema, modo }),
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))

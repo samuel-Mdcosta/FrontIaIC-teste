@@ -25,3 +25,10 @@ export function formatarTaxa(taxa) {
 export function temaPraticavel(tema) {
   return TEMAS_QUIZ.some((t) => t.titulo === tema);
 }
+
+// Quantos feedbacks ainda podem ser gerados hoje (limite diário por aluno).
+export function textoDoLimiteDoDia(restantes, limite) {
+  if (restantes == null || limite == null) return "";
+  if (restantes <= 0) return `Você já gerou os ${limite} feedbacks de hoje. Amanhã você poderá gerar novos.`;
+  return restantes === 1 ? "Você ainda pode gerar 1 feedback hoje." : `Você ainda pode gerar ${restantes} feedbacks hoje.`;
+}

@@ -12,5 +12,9 @@ export const TEMAS_QUIZ = [
   { id: 8, titulo: "Neuroplasticidade e desenvolvimento infantil" },
 ];
 
+// Simulado misto: questões de todos os temas, 30% fáceis / 50% médias / 20% difíceis. O `titulo` é o texto enviado
+// ao backend e DEVE ser idêntico a `quiz.simulado.nome` em ragiaic/config/quiz.php.
+export const SIMULADO_MISTO = { titulo: "Simulado misto", questoes: 20 };
+
 // Só para o resumo da tela: quem define o tamanho do quiz é o backend (config/quiz.php).
 export const QUESTOES_POR_TEMA = 10;

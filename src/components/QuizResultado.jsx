@@ -69,6 +69,9 @@ export default function QuizResultado({ questoes, respostas, gabarito, erroGabar
             carregando={registro === "pendente" || feedback.carregando}
             erro={feedback.erro}
             onTentarNovamente={feedback.recarregar}
+            onGerar={feedback.gerar}
+            gerando={feedback.gerando}
+            erroGerar={feedback.erroGerar}
           />
         )}
       </section>

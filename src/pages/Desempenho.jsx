@@ -83,6 +83,9 @@ export default function Desempenho() {
               carregando={feedback.carregando}
               erro={feedback.erro}
               onTentarNovamente={feedback.recarregar}
+              onGerar={feedback.gerar}
+              gerando={feedback.gerando}
+              erroGerar={feedback.erroGerar}
             />
           </section>
 

@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AvaliacaoQuiz from "./AvaliacaoQuiz";
-import { formatarTaxa, nivelInfo, temaPraticavel, TENDENCIAS } from "../utils/desempenho";
+import { formatarTaxa, nivelInfo, temaPraticavel, textoDoLimiteDoDia, TENDENCIAS } from "../utils/desempenho";
 
 // Feedback de desempenho do aluno gerado pela IA: não comenta questões isoladas,
 // e sim em quais áreas ele tem mais dificuldade, o que estudar, por que e onde.
@@ -9,16 +10,23 @@ import { formatarTaxa, nivelInfo, temaPraticavel, TENDENCIAS } from "../utils/de
 //   dados             — resposta de GET /api/users/login/desempenho/feedback
 //   carregando        — true enquanto o feedback é gerado/buscado
 //   erro              — mensagem de erro ou null
-//   onTentarNovamente — refaz o pedido
+//   onTentarNovamente — refaz a consulta
+//   onGerar           — botão "Gerar feedback": pede uma análise atualizada (até 10 por dia, só com bateria nova)
+//   gerando           — true enquanto o pedido é enviado
+//   erroGerar         — mensagem se o pedido foi recusado (ex.: os pedidos do dia acabaram) ou null
 //
 // Se o aluno ainda não avaliou o último quiz que concluiu, o backend responde `status: "avaliacao_pendente"`
-// e a análise só aparece depois da avaliação, feita aqui mesmo.
+// e o feedback só é liberado depois da avaliação, feita aqui mesmo.
 
-export default function FeedbackDesempenho({ dados, carregando, erro, onTentarNovamente }) {
+export default function FeedbackDesempenho({ dados, carregando, erro, onTentarNovamente, onGerar, gerando, erroGerar }) {
   if (carregando) return <Carregando />;
   if (erro) return <Erro mensagem={erro} onTentarNovamente={onTentarNovamente} />;
   if (dados?.status === "avaliacao_pendente") {
     return <AvaliacaoPendente avaliacao={dados.avaliacao} onAvaliado={onTentarNovamente} />;
+  }
+  if (dados?.status === "preparando") return <Preparando espera={dados.nova_tentativa_em_s} />;
+  if (dados?.status === "sem_analise") {
+    return <SemAnalise dados={dados} onGerar={onGerar} gerando={gerando} erroGerar={erroGerar} />;
   }
   if (!dados?.feedback) return <SemDados />;
 
@@ -31,13 +39,25 @@ export default function FeedbackDesempenho({ dados, carregando, erro, onTentarNo
 
   return (
     <div className="space-y-8">
+      {dados.pendente && (
+        <div role="status" aria-live="polite" className="flex gap-3 items-center p-4 bg-surface-container-low rounded-2xl">
+          <span className="material-symbols-outlined text-secondary animate-pulse">psychology</span>
+          <div>
+            <p className="text-sm text-on-surface-variant">
+              Estamos preparando um novo feedback. Ele aparece aqui assim que ficar pronto.
+            </p>
+            <Contagem segundos={dados.nova_tentativa_em_s} />
+          </div>
+        </div>
+      )}
+
       {resumo && (
         <div className="flex gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm">
           <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-secondary">psychology</span>
           </div>
           <div className="space-y-1">
-            <p className="font-medium text-sm text-on-surface-variant">Synapse Core AI</p>
+            <p className="font-medium text-sm text-on-surface-variant">Resumo do seu desempenho</p>
             <p className="text-on-surface leading-relaxed">{resumo}</p>
           </div>
         </div>
@@ -89,9 +109,12 @@ export default function FeedbackDesempenho({ dados, carregando, erro, onTentarNo
       )}
 
       {dados.gerado_em && (
-        <p className="text-[10px] text-on-surface-variant uppercase tracking-widest text-center">
-          Análise de {formatarData(dados.gerado_em)} · atualizada a cada nova lista concluída
-        </p>
+        <div className="space-y-3 text-center">
+          <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Feedback de {formatarData(dados.gerado_em)}
+          </p>
+          {onGerar && <BotaoGerar dados={dados} onGerar={onGerar} gerando={gerando} erroGerar={erroGerar} />}
+        </div>
       )}
     </div>
   );
@@ -223,6 +246,94 @@ function Erro({ mensagem, onTentarNovamente }) {
           Tentar novamente
         </button>
       )}
+    </div>
+  );
+}
+
+// Botão "Gerar feedback": pede uma análise atualizada. Fica desligado enquanto uma está a caminho, se os pedidos do
+// dia acabaram ou se o aluno ainda não concluiu uma bateria de questões nova (o feedback anterior continua valendo).
+function BotaoGerar({ dados, onGerar, gerando, erroGerar }) {
+  const ocupado = gerando || dados.pendente;
+  const semNovidade = !dados.pendente && !dados.ha_novidade && dados.restantes_hoje > 0;
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={onGerar}
+        disabled={ocupado || !dados.pode_gerar}
+        className="inline-flex items-center gap-2 text-sm font-headline font-bold text-primary border-2 border-primary/20 px-5 py-2.5 rounded-xl hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary disabled:hover:border-primary/20"
+      >
+        <span className="material-symbols-outlined text-base">autorenew</span>
+        {ocupado ? "Gerando..." : "Gerar feedback"}
+      </button>
+      {semNovidade && (
+        <p className="text-xs text-on-surface-variant">
+          Faça novas questões para gerar um feedback atualizado. Até lá, este feedback continua valendo.
+        </p>
+      )}
+      <p className="text-xs text-on-surface-variant">{textoDoLimiteDoDia(dados.restantes_hoje, dados.limite_dia)}</p>
+      {erroGerar && (
+        <p role="alert" className="text-xs text-error">
+          {erroGerar}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Contagem regressiva até a próxima tentativa, quando o feedback não pôde ser gerado agora (o servidor tenta de
+// novo a cada 60 s). Cada consulta traz o valor atualizado; a troca de `segundos` reinicia a contagem local.
+function Contagem({ segundos }) {
+  if (segundos == null) return null;
+  return <ContagemAtiva key={segundos} inicio={segundos} />;
+}
+
+function ContagemAtiva({ inicio }) {
+  const [restante, setRestante] = useState(inicio);
+  useEffect(() => {
+    const id = setInterval(() => setRestante((r) => Math.max(r - 1, 0)), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <p className="text-xs text-on-surface-variant mt-1">
+      {restante > 0 ? `Não conseguimos gerar agora. Nova tentativa em ${restante} s.` : "Tentando novamente..."}
+    </p>
+  );
+}
+
+// O primeiro pedido do aluno já foi feito e está sendo preparado; a tela consulta de novo sozinha.
+function Preparando({ espera }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex gap-4 items-center p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm"
+    >
+      <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
+        <span className="material-symbols-outlined text-secondary animate-pulse">psychology</span>
+      </div>
+      <div>
+        <p className="text-sm font-medium text-on-surface">Preparando o seu feedback...</p>
+        <p className="text-xs text-on-surface-variant">
+          Ele aparece aqui assim que ficar pronto. Você pode continuar navegando.
+        </p>
+        <Contagem segundos={espera} />
+      </div>
+    </div>
+  );
+}
+
+// O aluno já praticou, mas ainda não pediu nenhum feedback.
+function SemAnalise({ dados, onGerar, gerando, erroGerar }) {
+  return (
+    <div className="flex flex-col gap-4 p-6 bg-surface-container-low rounded-2xl">
+      <div className="flex gap-4 items-center">
+        <span className="material-symbols-outlined text-secondary">insights</span>
+        <p className="text-sm text-on-surface-variant">
+          Peça ao tutor um feedback sobre o seu desempenho: onde você precisa focar e o que, por que e onde estudar.
+        </p>
+      </div>
+      {onGerar && <BotaoGerar dados={dados} onGerar={onGerar} gerando={gerando} erroGerar={erroGerar} />}
     </div>
   );
 }

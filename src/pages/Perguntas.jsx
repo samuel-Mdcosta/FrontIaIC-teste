@@ -1,8 +1,8 @@
 import { usePerguntas } from "../hooks/usePerguntas";
-import { TEMAS_QUIZ, QUESTOES_POR_TEMA } from "../data/temasQuiz";
+import { TEMAS_QUIZ, SIMULADO_MISTO, QUESTOES_POR_TEMA } from "../data/temasQuiz";
 
 export default function Perguntas() {
-  const { tema, setTema, modo, setModo, iniciar } = usePerguntas();
+  const { temas, simulado, todos, alternarTema, alternarTodos, modo, setModo, iniciar } = usePerguntas();
 
   return (
     <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
@@ -17,7 +17,7 @@ export default function Perguntas() {
         </div>
         <div className="md:col-span-4 text-right">
           <p className="text-on-surface-variant text-lg max-w-xs ml-auto border-l-2 border-outline-variant/30 pl-6 py-2">
-            Escolha o tema e a modalidade de feedback para começar.
+            Escolha os temas e a modalidade de feedback para começar.
           </p>
         </div>
       </section>
@@ -31,17 +31,43 @@ export default function Perguntas() {
                 01
               </span>
               <h2 className="font-headline text-2xl font-medium text-on-surface">
-                Qual será o tema do seu estudo?
+                Quais temas você quer estudar?
               </h2>
             </div>
+            <p className="text-sm text-on-surface-variant -mt-2">
+              Marque um tema para um quiz de {QUESTOES_POR_TEMA} questões, ou dois ou mais para um simulado de{" "}
+              {SIMULADO_MISTO.questoes} questões só com os temas escolhidos.
+            </p>
+            {/* Seleciona (ou limpa) todos os temas: o simulado misto completo */}
+            <button
+              type="button"
+              onClick={alternarTodos}
+              aria-pressed={todos}
+              className={`w-full flex items-center gap-4 text-left p-5 rounded-xl border-l-4 shadow-sm transition-all ${
+                todos
+                  ? "border-primary bg-primary/[0.04]"
+                  : "border-transparent bg-surface-container-lowest hover:bg-surface-container-low"
+              }`}
+            >
+              <span className="material-symbols-outlined text-primary shrink-0">shuffle</span>
+              <span className="flex-grow">
+                <span className="block font-headline font-bold text-on-surface">{SIMULADO_MISTO.titulo}</span>
+                <span className="block text-sm text-on-surface-variant">
+                  {SIMULADO_MISTO.questoes} questões de todos os temas, em níveis variados.
+                </span>
+              </span>
+              <span className="material-symbols-outlined text-primary shrink-0">
+                {todos ? "check_box" : "check_box_outline_blank"}
+              </span>
+            </button>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {TEMAS_QUIZ.map(({ id, titulo }) => {
-                const selecionado = tema === titulo;
+                const selecionado = temas.includes(titulo);
                 return (
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setTema(titulo)}
+                    onClick={() => alternarTema(titulo)}
                     aria-pressed={selecionado}
                     className={`flex items-center gap-4 text-left p-4 rounded-xl border-l-4 shadow-sm transition-all ${
                       selecionado
@@ -59,11 +85,9 @@ export default function Perguntas() {
                     <span className="text-sm font-medium leading-snug text-on-surface">
                       {titulo}
                     </span>
-                    {selecionado && (
-                      <span className="material-symbols-outlined text-primary ml-auto shrink-0">
-                        radio_button_checked
-                      </span>
-                    )}
+                    <span className="material-symbols-outlined text-primary ml-auto shrink-0">
+                      {selecionado ? "check_box" : "check_box_outline_blank"}
+                    </span>
                   </button>
                 );
               })}
@@ -157,10 +181,10 @@ export default function Perguntas() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
                     <span className="text-sm text-on-surface-variant">
-                      Tema
+                      {temas.length > 1 ? "Temas" : "Tema"}
                     </span>
                     <span className="font-semibold text-primary truncate max-w-[160px] text-right">
-                      {tema || "—"}
+                      {temas.length === 0 ? "—" : todos ? SIMULADO_MISTO.titulo : temas.length === 1 ? temas[0] : `${temas.length} temas`}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-outline-variant/10">
@@ -178,7 +202,7 @@ export default function Perguntas() {
                       Quantidade
                     </span>
                     <span className="font-semibold text-primary">
-                      {QUESTOES_POR_TEMA} Questões
+                      {simulado ? SIMULADO_MISTO.questoes : QUESTOES_POR_TEMA} Questões
                     </span>
                   </div>
                 </div>
@@ -186,7 +210,7 @@ export default function Perguntas() {
 
               <button
                 onClick={iniciar}
-                disabled={!tema.trim()}
+                disabled={temas.length === 0}
                 className="w-full primary-gradient text-white py-5 rounded-xl font-headline font-bold text-lg hover:shadow-xl transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Começar
@@ -196,7 +220,7 @@ export default function Perguntas() {
               <p className="text-[10px] text-center text-on-surface-variant uppercase tracking-widest">
                 Questões baseadas em{" "}
                 <span className="text-primary font-bold">livros didáticos</span>
-                , no modelo do ENAMED, e revisadas antes de chegar a você.
+                , no modelo do ENAMED e geradas por Inteligência Artificial.
               </p>
             </div>
 

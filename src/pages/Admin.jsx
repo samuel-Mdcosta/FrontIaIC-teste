@@ -1,6 +1,8 @@
 import { Fragment, useState } from "react";
 import { useAdmin } from "../hooks/useAdmin";
 import { TEMAS_QUIZ } from "../data/temasQuiz";
+import { RECURSOS } from "../config/recursos";
+import { baixarCsvAdmin } from "../services/api";
 
 function iniciais(nome) {
   const partes = nome.trim().split(' ');
@@ -44,6 +46,20 @@ const AVATAR_CORES = [
 export default function Admin() {
   const { alunos, carregando, erro, recarregar, temasPorAluno, carregarTemasAluno } = useAdmin();
   const [expandidoId, setExpandidoId] = useState(null);
+  const [baixando, setBaixando] = useState(null); // "telemetria" | "feedback" enquanto baixa
+  const [erroCsv, setErroCsv] = useState(null);
+
+  async function baixar(nome) {
+    setBaixando(nome);
+    setErroCsv(null);
+    try {
+      await baixarCsvAdmin(nome);
+    } catch (e) {
+      setErroCsv(e.message);
+    } finally {
+      setBaixando(null);
+    }
+  }
 
   function alternarAluno(id) {
     if (expandidoId === id) {
@@ -96,13 +112,38 @@ export default function Admin() {
           </span>
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-outline">Exportar dados</span>
+          {[
+            ['telemetria', 'Telemetria (CSV)', 'Um registro por quiz: aluno, tema, início, fim, duração e acertos.'],
+            ['feedback', 'Feedback (CSV)', 'Avaliações de satisfação dos quizzes, uma nota por linha.'],
+          ].map(([nome, rotulo, dica]) => (
+            <button
+              key={nome}
+              type="button"
+              onClick={() => baixar(nome)}
+              disabled={baixando !== null}
+              title={dica}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-primary bg-surface-container-low hover:bg-surface-container px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-base">
+                {baixando === nome ? 'progress_activity' : 'download'}
+              </span>
+              {rotulo}
+            </button>
+          ))}
+          {erroCsv && <span className="text-xs text-error">{erroCsv}</span>}
+        </div>
+
         <div className="overflow-x-auto bg-surface-container-lowest rounded-3xl shadow-sm shadow-black/5">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low/50">
                 <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">Nome do Aluno</th>
                 <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">E-mail</th>
-                <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Tempo no Chat</th>
+                {RECURSOS.chat && (
+                  <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Tempo no Chat</th>
+                )}
                 <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-center">Quantidade de Exercicios</th>
                 <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline">Taxa de Acerto</th>
                 <th className="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-outline text-right">Quantidade de Erros</th>
@@ -111,7 +152,7 @@ export default function Admin() {
             <tbody className="divide-y divide-outline-variant/10">
               {alunos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-8 py-12 text-center text-sm text-on-surface-variant">
+                  <td colSpan={RECURSOS.chat ? 6 : 5} className="px-8 py-12 text-center text-sm text-on-surface-variant">
                     Nenhum aluno cadastrado.
                   </td>
                 </tr>
@@ -151,9 +192,11 @@ export default function Admin() {
                         </button>
                       </td>
                       <td className="px-6 py-4 text-sm text-on-surface-variant">{aluno.email}</td>
-                      <td className="px-6 py-4 text-sm text-on-surface-variant text-center">
-                        {formatarTempo(aluno.tempo_total_chat)}
-                      </td>
+                      {RECURSOS.chat && (
+                        <td className="px-6 py-4 text-sm text-on-surface-variant text-center">
+                          {formatarTempo(aluno.tempo_total_chat)}
+                        </td>
+                      )}
                       <td className="px-6 py-4 text-sm text-on-surface-variant text-center">
                         {aluno.tentativas_quiz ?? '—'}
                       </td>
@@ -184,7 +227,7 @@ export default function Admin() {
 
                     {aberto && (
                       <tr className="bg-surface-container-low/40">
-                        <td colSpan={6} className="px-8 pb-6 pt-1">
+                        <td colSpan={RECURSOS.chat ? 6 : 5} className="px-8 pb-6 pt-1">
                           <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant/15 p-5">
                             <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-outline mb-4">
                               Desempenho por tema — {aluno.nome}

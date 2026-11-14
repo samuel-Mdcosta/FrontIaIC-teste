@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BASE_URL, getAuthHeaders, clearToken, atualizarPerfil } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { RECURSOS } from "../config/recursos";
 
 export function usePerfil() {
   const [perfil, setPerfil] = useState(null);
@@ -15,7 +16,7 @@ export function usePerfil() {
 
         const [resUsuario, resSessoesChat, resTentativas] = await Promise.all([
           fetch(`${BASE_URL}/api/user`, { headers }),
-          fetch(`${BASE_URL}/api/users/login/chat/quantidade`, { headers }),
+          RECURSOS.chat ? fetch(`${BASE_URL}/api/users/login/chat/quantidade`, { headers }) : Promise.resolve({ ok: false }),
           fetch(`${BASE_URL}/api/users/login/tentativas/quantidade`, { headers }),
         ]);
 

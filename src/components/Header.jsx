@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { isAdmin } from "../services/api";
+import { RECURSOS } from "../config/recursos";
 
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -15,7 +16,9 @@ export default function Header() {
           {/* Nav desktop */}
           <nav className="hidden md:flex items-center gap-6">
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/inicio">Home</a>
-            <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/chat">Chat</a>
+            {RECURSOS.chat && (
+              <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/chat">Chat</a>
+            )}
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perguntas">Perguntas</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/desempenho">Desempenho</a>
             <a className="text-slate-500 font-medium hover:text-blue-800 transition-colors" href="/perfil">Perfil</a>
@@ -51,13 +54,15 @@ export default function Header() {
             >
               Home
             </a>
-            <a
-              className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
-              href="/chat"
-              onClick={() => setMenuAberto(false)}
-            >
-              Chat
-            </a>
+            {RECURSOS.chat && (
+              <a
+                className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
+                href="/chat"
+                onClick={() => setMenuAberto(false)}
+              >
+                Chat
+              </a>
+            )}
             <a
               className="text-slate-600 font-medium hover:text-blue-800 hover:bg-slate-100 transition-colors py-3 px-4 rounded-lg"
               href="/perguntas"

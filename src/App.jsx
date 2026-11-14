@@ -9,6 +9,7 @@ import Quiz from "./pages/Quiz";
 import Perfil from "./pages/Perfil";
 import Admin from "./pages/Admin";
 import Desempenho from "./pages/Desempenho";
+import { RECURSOS } from "./config/recursos";
 
 function RotaProtegida({ children }) {
   if (!isAuthenticated()) {
@@ -31,7 +32,10 @@ export default function App() {
           <Route index element={<Login />} />
 
           <Route path="inicio" element={<RotaProtegida><Inicio /></RotaProtegida>} />
-          <Route path="chat" element={<RotaProtegida><Chat /></RotaProtegida>} />
+          <Route
+            path="chat"
+            element={RECURSOS.chat ? <RotaProtegida><Chat /></RotaProtegida> : <Navigate to="/inicio" replace />}
+          />
           <Route path="perguntas" element={<RotaProtegida><Perguntas /></RotaProtegida>} />
           <Route path="perguntas/quizz/:tema" element={<RotaProtegida><Quiz /></RotaProtegida>} />
           <Route path="desempenho" element={<RotaProtegida><Desempenho /></RotaProtegida>} />
